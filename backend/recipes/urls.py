@@ -1,0 +1,8 @@
+from django.urls import path, include
+# from rest_framework.routers import DefaultRouter
+
+
+
+urlpatterns = [
+    # path('api/recipes/', include('recipes.urls')),
+]
