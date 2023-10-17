@@ -126,3 +126,9 @@ dmypy.json
 # IDE
 .idea
 .vscode
+
+# media
+backend/media
+
+# Frontend
+node_modules/

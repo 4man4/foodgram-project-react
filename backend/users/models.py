@@ -1,15 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-# from django.contrib.auth import get_user_model
-
-
-# User = get_user_model()
-
-
-# class Role(models.TextChoices):
-#     USER = 'user', 'Пользователь'
-#     MODERATOR = 'moderator', 'Модератор'
-#     ADMIN = 'admin', 'Администратор'
 
 
 class User(AbstractUser):
@@ -32,36 +22,17 @@ class User(AbstractUser):
     first_name = models.CharField(
         max_length=150,
         blank=True,
+        verbose_name='Имя',
     )
     last_name = models.CharField(
         max_length=150,
-        blank=True
+        blank=True,
+        verbose_name='Фамилия',
     )
-    # role = models.CharField(
-    #     max_length=len(max(Role.values, key=len)),
-    #     choices=Role.choices,
-    #     default=Role.USER,
-    #     verbose_name='Роль',
-    # )
 
-    # def is_admin(self):
-    #     return self.role == Role.ADMIN or self.is_staff
-    #
-    # def is_user(self):
-    #     return self.role == Role.USER
-    #
-    # def is_moderator(self):
-    #     return self.role == Role.MODERATOR
-    #
     class Meta:
-        # ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        # constraints = [
-        #     models.UniqueConstraint(
-        #         fields=['username', 'email'], name='unique_username_email'
-        #     )
-        # ]
 
     def __str__(self):
         return self.username
@@ -74,11 +45,13 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='follower',
+        verbose_name='Пользователь',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='following',
+        verbose_name='Автор',
     )
 
     class Meta:

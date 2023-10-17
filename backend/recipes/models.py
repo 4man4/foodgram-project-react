@@ -1,15 +1,6 @@
-# from django.core.validators import validate_slug
 from django.db import models
 
 from users.models import User
-
-# from .validators import (
-#     validate_score, validate_username, validate_username_bad_sign,
-#     validate_year,
-# )
-
-
-# User = get_user_model()
 
 
 class Recipe(models.Model):
@@ -17,39 +8,50 @@ class Recipe(models.Model):
 
     name = models.CharField(
         max_length=200,
+        verbose_name='Название',
         help_text='Введите название рецепта',
-        verbose_name='Рецепт'
     )
     author = models.ForeignKey(
-        to='User',
+        User,
         on_delete=models.CASCADE,
-        related_name='recipe',
+        related_name='recipes',
         verbose_name='Автор',
+        help_text='Выберите автора',
     )
     image = models.ImageField(
         upload_to='recipes/images',
         default=None,
         verbose_name='Фото блюда',
+        help_text='Выберите изображение',
     )
     text = models.TextField(
-        verbose_name='Описание рецепта',
+        verbose_name='Описание',
+        help_text='Укажите способ приготовления',
     )
     ingredients = models.ManyToManyField(
-        to='Ingredient',
+        'Ingredient',
         through='RecipeIngredients',
+        blank=True,
+        related_name='recipes',
         verbose_name='Ингредиенты',
+        help_text='Выберите ингредиенты',
     )
     tags = models.ManyToManyField(
-        to='Tag',
-        related_name='recipe',
+        'Tag',
+        through='RecipeTags',
+        related_name='recipes',
         verbose_name='Тег',
+        help_text='Выберите тег или создайте новый',
     )
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name='Время приготовления (в минутах)',
+        verbose_name='Время приготовления',
+        help_text='Укажите значение в минутах',
+
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации',
+        help_text='Дата публикации',
     )
 
     class Meta:
@@ -66,41 +68,49 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         max_length=100,
+        verbose_name='Ингредиент',
+        help_text='Введите название ингредиента',
     )
     measurement_unit = models.CharField(
         max_length=50,
-        verbose_name='Единица измерения',
+        verbose_name='Единицв измерения',
+        help_text='Введите единицу измерения',
     )
 
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
 class RecipeIngredients(models.Model):
-    """Модель ингредиентов в рецепте."""
+    """Модель связи ингредиентов с рецептами."""
 
     recipe = models.ForeignKey(
-        to='Recipe',
+        Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
-        to='Ingredient',
+        Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
-        verbose_name='Количество'
+        null=True,
+        verbose_name='Количество',
     )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
-        unique_together = ('recipe', 'ingredient')
+        models.UniqueConstraint(
+            fields=['recipe', 'ingredient'],
+            name='unique_ingredient',
+        )
 
     def __str__(self):
         return f'Ингредиент {self.ingredient} в рецепте {self.recipe}'
@@ -111,14 +121,20 @@ class Tag(models.Model):
 
     name = models.CharField(
         max_length=200,
-        verbose_name='Тэг',
+        verbose_name='Название',
+        help_text='Введите название тега',
     )
     color = models.CharField(
         max_length=7,
+        unique=True,
+        verbose_name='Цвет',
+        help_text='Введите цвет в HEX формате (#000000)',
     )
     slug = models.SlugField(
         max_length=200,
         unique=True,
+        verbose_name='Слаг',
+        help_text='Введите слаг',
     )
 
     class Meta:
@@ -130,23 +146,28 @@ class Tag(models.Model):
 
 
 class RecipeTags(models.Model):
-    """Модель тегов рецепта."""
+    """Модель связи тегов с рецептами."""
 
     recipe = models.ForeignKey(
-        to='Recipe',
+        Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
+        help_text='Введите id рецепта',
     )
     tag = models.ForeignKey(
-        to='Tag',
+        Tag,
         on_delete=models.CASCADE,
         verbose_name='Тег',
+        help_text='Введите id тега',
     )
 
     class Meta:
-        verbose_name = 'Тег рецепта.'
-        verbose_name_plural = 'Теги рецептов.'
-        unique_together = ('recipe', 'tag')
+        verbose_name = 'Тег рецепта'
+        verbose_name_plural = 'Теги рецептов'
+        models.UniqueConstraint(
+            fields=['recipe', 'tag'],
+            name='unique_tag',
+        )
 
     def __str__(self):
         return f'Тег {self.tag} в рецепте {self.recipe}'
@@ -156,15 +177,15 @@ class Favorite(models.Model):
     """Модель избранного."""
 
     user = models.ForeignKey(
-        to='User',
+        User,
         on_delete=models.CASCADE,
-        related_name='favorites',
+        related_name='favorite',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
-        to='Recipe',
+        Recipe,
         on_delete=models.CASCADE,
-        related_name='favorites',
+        related_name='favorite',
         verbose_name='Рецепт',
     )
 
@@ -183,180 +204,27 @@ class Favorite(models.Model):
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
 
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shoppingcart',
+        verbose_name='Пользователь',
+    )
     recipe = models.ForeignKey(
-        to='Recipe',
+        Recipe,
         on_delete=models.CASCADE,
         related_name='shoppingcart',
         verbose_name='Рецепт',
     )
-    user = models.ForeignKey(
-        to='User',
-        on_delete=models.CASCADE,
-        related_name='shopping_cart',
-        verbose_name='Пользователь',
-    )
-    when_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-when_added']
         verbose_name = 'Список покупок'
-        verbose_name_plural = verbose_name
-        unique_together = ('user', 'recipe')
+        verbose_name_plural = 'Списки покупок'
+        models.UniqueConstraint(
+            fields=['user', 'recipe'],
+            name='unique_shopping_cart',
+        )
 
     def __str__(self):
-        return f'{self.user} added {self.recipe}'
-
-
-# ##################################
-#
-#
-#
-#
-# class Review(models.Model):
-#     """Модель отзывов."""
-#
-#     title = models.ForeignKey(
-#         'Title',
-#         on_delete=models.CASCADE,
-#         related_name='reviews',
-#         verbose_name='Произведение',
-#     )
-#     text = models.TextField(
-#         help_text='Введите текст отзыва',
-#         verbose_name='Текст отзыва',
-#     )
-#     author = models.ForeignKey(
-#         User,
-#         on_delete=models.CASCADE,
-#         related_name='reviews',
-#         verbose_name='Автор',
-#     )
-#     score = models.IntegerField(
-#         help_text='Поставьте вашу оценку от 1 до 10',
-#         verbose_name='Оценка',
-#         validators=[validate_score],
-#         default=0,
-#     )
-#     pub_date = models.DateTimeField(
-#         auto_now_add=True, verbose_name='Дата публикации'
-#     )
-#
-#     class Meta:
-#         ordering = ('-pub_date',)
-#         verbose_name = 'Отзыв'
-#         verbose_name_plural = 'Отзывы'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=['author', 'title'], name='unique_author_title'
-#             )
-#         ]
-#
-#     def __str__(self):
-#         return self.text[:15]
-#
-#
-# class Comment(models.Model):
-#     """Модель комментариев."""
-#
-#     review = models.ForeignKey(
-#         Review,
-#         on_delete=models.CASCADE,
-#         related_name='comments',
-#         verbose_name='Комментарий',
-#     )
-#     text = models.TextField(
-#         help_text='Напишите ваш комментарий', verbose_name='Комментарий'
-#     )
-#     author = models.ForeignKey(
-#         User,
-#         on_delete=models.CASCADE,
-#         related_name='comments',
-#         verbose_name='Автор',
-#     )
-#
-#     pub_date = models.DateTimeField(
-#         auto_now_add=True, db_index=True, verbose_name='Дата публикации'
-#     )
-#
-#     class Meta:
-#         ordering = ('-pub_date',)
-#         verbose_name = 'Комментарий'
-#         verbose_name_plural = 'Комментарии'
-#
-#     def __str__(self):
-#         return self.text[:15]
-#
-#
-# class Genre(models.Model):
-#     """Модель жанров."""
-#
-#     name = models.CharField('Жанр', max_length=MAX_LENGTH_GENRE_NAME)
-#     slug = models.SlugField(
-#         'Слаг',
-#         unique=True,
-#         max_length=MAX_LENGTH_GENRE_SLUG,
-#         validators=[validate_slug],
-#     )
-#
-#     class Meta:
-#         ordering = ('name',)
-#         verbose_name = 'Жанр'
-#         verbose_name_plural = 'Жанры'
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class Category(models.Model):
-#     """Модель категорий."""
-#
-#     name = models.CharField('Категория', max_length=MAX_LENGTH_CATEGORY_NAME)
-#     slug = models.SlugField(
-#         'Слаг',
-#         unique=True,
-#         max_length=MAX_LENGTH_CATEGORY_SLUG,
-#         validators=[validate_slug],
-#     )
-#
-#     class Meta:
-#         ordering = ('name',)
-#         verbose_name = 'Категория'
-#         verbose_name_plural = 'Категории'
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class Title(models.Model):
-#     """Модель произведений."""
-#
-#     name = models.CharField(
-#         max_length=MAX_LENGTH_TITLE_NAME, verbose_name='Произведение'
-#     )
-#     year = models.PositiveSmallIntegerField(
-#         validators=[validate_year],
-#     )
-#     category = models.ForeignKey(
-#         Category, related_name='titles', on_delete=models.SET_NULL, null=True
-#     )
-#     genre = models.ManyToManyField(
-#         Genre,
-#         related_name='titles',
-#         through='GenreTitle',
-#     )
-#     description = models.TextField(blank=True, verbose_name='Описание')
-#
-#     class Meta:
-#         ordering = ('name',)
-#         verbose_name = 'Произведение'
-#         verbose_name_plural = 'Произведения'
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class GenreTitle(models.Model):
-#     """Связь жанров и произведений."""
-#
-#     genre = models.ForeignKey(Genre, on_delete=models.PROTECT)
-#     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+        return (f'{self.recipe} в списке покупок у пользователя '
+                f'{self.user.first_name} {self.user.last_name}')

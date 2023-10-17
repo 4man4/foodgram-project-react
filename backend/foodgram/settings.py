@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', 'False')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1, localhost').split(', ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(', ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,8 +26,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    # 'api.apps.ApiConfig',
-    # 'recipes.apps.RecipesConfig',
+    'recipes',
     'users',
 ]
 
@@ -68,7 +67,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_FILTER_BACKENDSgd': [
+    'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_PAGINATION_CLASS': [
@@ -77,34 +76,26 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-
-# !!!!! ЗАМЕНИТЬ НА POSTGRESQL
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.path.join(BASE_DIR, os.getenv('DB_NAME', 'foodgram.sqlite3')),
-        # 'USER': os.getenv('DB_USER'),
-        # 'PASSWORD': os.getenv('DB_PASSWORD'),
-        # 'HOST': os.getenv('DB_HOST'),
-        # 'PORT': os.getenv('DB_PORT')
+        'NAME': os.path.join(BASE_DIR, os.getenv('DB_NAME', 'db_name')),
+        'USER': os.getenv('DB_USER', 'db_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'db_password'),
+        'HOST': os.getenv('DB_HOST', 'localhost, 127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_USER_MODEL = 'users.User'
 
-# DJOSER = {
-#     'HIDE_USERS': False,
-#     'LOGIN_FIELD': 'email',
-# }
+DJOSER = {
+    'USER_ID_FIELD': 'id',
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -121,9 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'ru')
 
 TIME_ZONE = os.getenv('TIME_ZONE', 'Europe/Moscow')
@@ -135,16 +123,10 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
