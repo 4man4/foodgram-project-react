@@ -3,7 +3,7 @@ name: Main Foodgram workflow
 on:
   push:
     branches:
-      - main
+      - try_1
 
 jobs:
 
@@ -62,7 +62,7 @@ jobs:
         with:
           context: ./backend/
           push: true
-          tags: bidoubletwice/Foodgram_backend:latest
+          tags: bidoubletwice/foodgram_backend:latest
 
   frontend_tests:
     runs-on: ubuntu-latest
@@ -100,7 +100,7 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          tags: bidoubletwice/Foodgram_frontend:latest
+          tags: bidoubletwice/foodgram_frontend:latest
 
   build_gateway_and_push_to_docker_hub:
     name: Push gateway Docker image to DockerHub
@@ -120,7 +120,7 @@ jobs:
         with:
           context: ./nginx/
           push: true
-          tags: bidoubletwice/Foodgram_gateway:latest
+          tags: bidoubletwice/foodgram_gateway:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -139,7 +139,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "docker-compose.production.yml"
-        target: "dev/Foodgram"
+        target: "dev/foodgram"
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
@@ -148,7 +148,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          cd dev/Foodgram
+          cd dev/foodgram
           sudo docker compose -f docker-compose.production.yml pull
           sudo docker compose -f docker-compose.production.yml down
           sudo docker compose -f docker-compose.production.yml up -d
