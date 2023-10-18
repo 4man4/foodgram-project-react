@@ -1,10 +1,10 @@
 # Проект «Kittygram»
 
-[![Main Kittygrm Workflow](https://github.com/4man4/kittygram_final/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/kittygram_final/actions/workflows/main.yml)
+[![Main Foodgram Workflow](https://github.com/4man4/foodgram_project/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/foodgram_project/actions/workflows/main.yml)
 
 ## Описание
 Кулинарная социальная сеть &#127858;<br>
-[https://4man4.myddns.me/](https://4man4.myddns.me/)
+[https://4man4.ddns.net](https://4man4.ddns.net)
 
 Позволяет публиковать рецепты своих любимых блюд, добавлять в избранное чужие и получать список покупок для их приготовления.
 
@@ -22,7 +22,7 @@
 - JavaScript
 
 
-## Подготовка и запуск прокета с DockerHub
+## Подготовка и запуск проекта с DockerHub
 
 Для запуска проекта необходимо создать каталог `foodgram` и перейти в него:
 ```bash
