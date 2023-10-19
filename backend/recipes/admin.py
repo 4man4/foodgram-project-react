@@ -1,14 +1,9 @@
-from django.contrib.admin import ModelAdmin, register, site, TabularInline
+from django.contrib.admin.decorators import register
+from django.contrib.admin.options import ModelAdmin, TabularInline
+from django.contrib.admin.sites import site
 
-from .models import (
-    Recipe,
-    Ingredient,
-    RecipeIngredients,
-    Tag,
-    RecipeTags,
-    Favorite,
-    ShoppingCart,
-)
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredients,
+                     RecipeTags, ShoppingCart, Tag)
 
 
 class RecipeIngredientsInline(TabularInline):

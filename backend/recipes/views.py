@@ -153,5 +153,5 @@ def download_shopping_cart(request):
             f'({ingredient["ingredient__measurement_unit"]})'
         )
     response = HttpResponse(shopping_list, content_type='text/plain')
-    response['Content-Disposition'] = f'attachment; filename=shopping_list.txt'
+    response['Content-Disposition'] = 'attachment; filename=shopping_list.txt'
     return response
