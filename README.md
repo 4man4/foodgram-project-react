@@ -1,6 +1,6 @@
 # Проект «Kittygram»
 
-[![Main Foodgram Workflow](https://github.com/4man4/foodgram_project/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/foodgram_project/actions/workflows/main.yml)
+[![Main Foodgram Workflow](https://github.com/4man4/foodgram_project_react/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/foodgram_project_react/actions/workflows/main.yml)
 
 ## Описание
 Кулинарная социальная сеть &#127858;<br>
