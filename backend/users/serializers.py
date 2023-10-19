@@ -1,4 +1,3 @@
-# from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.authtoken.models import Token
@@ -7,13 +6,10 @@ from recipes.models import Recipe
 from .models import User, Follow
 
 
-# User = get_user_model()
-
-
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class PasswordSerializer(serializers.Serializer):
@@ -47,7 +43,7 @@ class FollowerSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
-                fields=['user', 'author'],
+                fields=('user', 'author')
             )
         ]
 
@@ -64,12 +60,7 @@ class FollowerSerializer(serializers.ModelSerializer):
 class SpecialRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShowFollowerSerializer(serializers.ModelSerializer):
@@ -79,7 +70,7 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             'id',
             'username',
             'email',
@@ -88,7 +79,7 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
             'is_follow',
             'recipes',
             'recipes_count',
-        ]
+        )
 
     def check_is_follow(self, obj):
         request = self.context.get('request')
@@ -100,5 +91,4 @@ class ShowFollowerSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         count = obj.recipes.count()
-        # count = obj.recipes.all().count()
         return count
