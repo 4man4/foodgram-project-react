@@ -9,14 +9,14 @@ services:
   db:
     image: postgres:13.10
     restart: always
-#    env_file: .env
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
     image: bidoubletwice/foodgram_backend
     restart: always
-#    env_file: .env
-    env_file: ../backend/.env
+    env_file: .env
+#    env_file: ../backend/.env
     depends_on:
       - db
     volumes:
@@ -30,8 +30,8 @@ services:
       - static:/static/
   gateway:
     image: bidoubletwice/foodgram_gateway
-#    env_file: .env
-    env_file: ../backend/.env
+    env_file: .env
+#    env_file: ../backend/.env
     volumes:
       - static:/static/
       - media:/media/
