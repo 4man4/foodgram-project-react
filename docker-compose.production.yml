@@ -24,13 +24,13 @@ services:
       - media:/media/
   frontend:
     image: bidoubletwice/foodgram_frontend
-#    env_file: .env
+    env_file: .env
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static/
   gateway:
     image: bidoubletwice/foodgram_gateway
-#    env_file: .env
+    env_file: .env
 #    env_file: ../backend/.env
     volumes:
       - static:/static/
