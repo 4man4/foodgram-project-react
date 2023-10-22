@@ -63,7 +63,7 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_stat
 ```
 
 После выполнения команд проект будет доступен по адресу:<br>
-[https://localhost:9000/](https://localhost:9000/)
+[https://localhost:8000/](https://localhost:9000/)
 
 Остановить проект можно двумя способами:
 - Нажать `Ctrl` + `C` в терминале, откуда был выполнен запуск
