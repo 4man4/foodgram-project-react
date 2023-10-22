@@ -16,8 +16,8 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data/
     env_file:
-#      - ./.env
-      - ../backend/.env
+      - ./.env
+#      - ../backend/.env
     ports:
       - 5433:5433
 
@@ -35,8 +35,8 @@ services:
     depends_on:
       - db
     env_file:
-#      - ./.env
-      - ../backend/.env
+      - ./.env
+#      - ../backend/.env
 
   nginx:
     container_name: nginx
