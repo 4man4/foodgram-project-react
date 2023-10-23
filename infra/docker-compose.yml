@@ -2,23 +2,21 @@ version: '3.3'
 services:
 
   frontend:
-#    image: bidoubletwice/foodgram_frontend
-#    container_name: frontend
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: bidoubletwice/foodgram_frontend
+    container_name: frontend
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
 
   db:
     container_name: db
     image: postgres:13.10
-#    restart: always
     volumes:
       - pg_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
-#      - ../backend/.env
     ports:
       - '5432:5432'
 
@@ -29,8 +27,6 @@ services:
 #    build:
 #      context: ../backend
 #      dockerfile: Dockerfile
-#    expose:
-#      - 8000
     volumes:
       - static:/app/static/
       - media:/app/media/
@@ -38,7 +34,6 @@ services:
       - db
     env_file:
       - ./.env
-#      - ../backend/.env
 
   nginx:
     container_name: nginx
@@ -59,4 +54,3 @@ volumes:
   pg_data:
   static:
   media:
-#  result_build:
