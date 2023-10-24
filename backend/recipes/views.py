@@ -29,17 +29,17 @@ from .models import (
 class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
-    permissions = [AllowAny, ]
+    permissions = (AllowAny,)
     pagination_class = None
 
 
 class IngredientsView(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = serializers.IngredientSerializer
-    filter_backends = [DjangoFilterBackend, ]
+    filter_backends = (DjangoFilterBackend,)
     filter_class = IngredientFilter
-    search_fields = ['name', ]
+    search_fields = ('name',)
     pagination_class = None
 
 
