@@ -10,7 +10,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.WARNING('Начало импорта'))
         with open(
-            '../data/ingredients.json',
+            './ingredients.json',
+            # '../data/ingredients.json',
             encoding='utf-8',
         ) as file_data_ingredients:
             ingredient_data = json.loads(file_data_ingredients.read())
@@ -18,7 +19,7 @@ class Command(BaseCommand):
                 Ingredient.objects.get_or_create(**ingredients)
 
         with open(
-            '../data/tags.json',
+            './tags.json',
             encoding='utf-8',
         ) as file_data_tags:
             tags_data = json.loads(file_data_tags.read())
