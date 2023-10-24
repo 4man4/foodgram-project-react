@@ -111,7 +111,7 @@ class ShoppingCartViewSet(APIView):
     @action(methods=['post'], detail=True,)
     def post(self, request, pk):
         user = request.user
-        data = {'user': user.id, 'recipe': pk, }
+        data = {'user': user.id, 'recipe': pk}
         serializer = serializers.ShoppingCartSerializer(
             data=data, context={'request': request}
         )

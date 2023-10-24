@@ -23,9 +23,9 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     @action(
-        methods=['get'],
+        methods=('get',),
         detail=False,
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def me(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=request.user.id)
@@ -60,9 +60,9 @@ class UserViewSet(viewsets.ModelViewSet):
             )
 
     @action(
-        methods=['get', 'delete', 'post'],
+        methods=('get', 'delete', 'post'),
         detail=True,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, pk=None):
         user = request.user
@@ -92,9 +92,9 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        methods=['get', 'post'],
+        methods=('get', 'post'),
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
         user = request.user
