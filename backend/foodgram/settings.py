@@ -80,11 +80,11 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.path.join(BASE_DIR, os.getenv('DB_NAME', 'db_name')),
-        'USER': os.getenv('DB_USER', 'db_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'db_password'),
-        'HOST': os.getenv('DB_HOST', 'localhost, 127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', 5432)
+        'NAME': os.getenv('POSTGRES_DB', 'db_name'),
+        'USER': os.getenv('POSTGRES_USER', 'db_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'db_password'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),
+        'PORT': os.getenv('POSTGRES_PORT', 5432)
     }
 }
 
