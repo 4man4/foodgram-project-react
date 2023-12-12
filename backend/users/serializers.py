@@ -1,60 +1,46 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-from rest_framework.authtoken.models import Token
 
 from recipes.models import Recipe
 from .models import User, Follow
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField('get_is_subscribed')
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+        )
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(
+            user=request.user,
+            author=obj
+        ).exists()
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+        )
 
 
 class PasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(required=True)
-    current_password = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
-
-class TokenSerializer(serializers.ModelSerializer):
-    token = serializers.CharField(source='key')
-
-    class Meta:
-        model = Token
-        fields = ('token',)
-
-
-class FollowerSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
-    author = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
-
-    class Meta:
-        model = Follow
-        fields = ('user', 'author')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'author')
-            )
-        ]
-
-    def validate(self, data):
-        user = data.get('user')
-        author = data.get('author')
-        if user == author:
-            raise serializers.ValidationError(
-                'Вы не можете подписаться на самого себя.'
-            )
-        return data
 
 
 class SpecialRecipeSerializer(serializers.ModelSerializer):
@@ -63,32 +49,28 @@ class SpecialRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class ShowFollowerSerializer(serializers.ModelSerializer):
-    recipes = SpecialRecipeSerializer(many=True, required=True)
-    is_follow = serializers.SerializerMethodField('check_is_follow')
+class SubscriptionsSerializer(UserSerializer):
+    recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
 
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'is_follow',
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + (
             'recipes',
             'recipes_count',
         )
+        read_only_fields = ('email', 'username')
 
-    def check_is_follow(self, obj):
+    def get_recipes(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(
-            user=request.user, author=obj
-        ).exists()
+        recipes_limit = request.query_params.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return SpecialRecipeSerializer(
+            recipes,
+            many=True,
+            read_only=True
+        ).data
 
     def get_recipes_count(self, obj):
-        count = obj.recipes.count()
-        return count
+        return obj.recipes.count()

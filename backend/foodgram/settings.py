@@ -69,12 +69,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    'DEFAULT_PAGINATION_CLASS': [
-        'rest_framework.pagination.PageNumberPagination'
-    ],
+    'DEFAULT_PAGINATION_CLASS': 'backend.foodgram.pagination.CustomPagination',
     'PAGE_SIZE': 6,
+    # 'EXCEPTION_HANDLER': 'foodgram.validation.custom_exception',
 }
 
 
@@ -84,7 +83,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB', 'db_name'),
         'USER': os.getenv('POSTGRES_USER', 'db_user'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'db_password'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db_host'),
         'PORT': os.getenv('POSTGRES_PORT', 5432)
     }
 }
