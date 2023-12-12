@@ -1,6 +1,6 @@
 from django.db import models
 
-import recipes.constants as const
+import foodgram.constants as const
 import recipes.validators as validate
 from users.models import User
 

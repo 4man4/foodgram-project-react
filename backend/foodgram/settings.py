@@ -5,6 +5,8 @@ from pathlib import Path
 import django_filters
 from dotenv import load_dotenv
 
+import foodgram.constants as const
+
 
 load_dotenv()
 
@@ -63,6 +65,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
+        # 'foodgram.permissions.IsAuthorOrAdminOrReadOnly',
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -72,10 +75,9 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
     'DEFAULT_PAGINATION_CLASS': 'backend.foodgram.pagination.CustomPagination',
-    'PAGE_SIZE': 6,
+    'PAGE_SIZE': const.PAGE_SIZE,
     # 'EXCEPTION_HANDLER': 'foodgram.validation.custom_exception',
 }
-
 
 DATABASES = {
     'default': {
@@ -87,7 +89,6 @@ DATABASES = {
         'PORT': os.getenv('POSTGRES_PORT', 5432)
     }
 }
-
 
 AUTH_USER_MODEL = 'users.User'
 

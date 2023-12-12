@@ -1,8 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
-# from rest_framework.response import Response
 from rest_framework import serializers, status
-
-from pprint import pprint
 
 from users.models import User
 from users.serializers import UserSerializer, SpecialRecipeSerializer
@@ -204,48 +201,6 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-# class FavoriteSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Favorite
-#         fields = ('recipe', 'user')
-#
-# class FavoriteSerializer(SpecialRecipeSerializer):
-#     # name = serializers.SerializerMethodField('get_name')
-#     # cooking_time = serializers.SerializerMethodField('get_cooking_time')
-#
-#     class Meta(SpecialRecipeSerializer.Meta):
-#         fields = SpecialRecipeSerializer.Meta.fields
-#
-#     # def get_name(self, data):
-#     #     print('1', data.get('recipe').get('name'))
-#     #     return data.get('recipe').get('name')
-#     #
-#     # def get_cooking_time(self, data):
-#     #     print('2', data.get('recipe').get('cooking_time'))
-#     #     return data.get('recipe').get('cooking_time')
-#
-#     def validate(self, data):
-#         # pprint('self')
-#         # pprint(self)
-#         # pprint('data')
-#         # pprint(data)
-#         # pprint('request')
-#         # pprint(data.get('request'))
-#         request = self.context['request']
-#         recipe = self.context['recipe']
-#         user = request.user
-#         # if not user.is_authenticated:
-#         #     raise serializers.ValidationError(
-#         #         'Пользователь не авторизован'
-#         #     )
-#         if (
-#             request.method == 'POST'
-#             and Favorite.objects.filter(user=user, recipe=recipe).exists()
-#         ):
-#             raise serializers.ValidationError(
-#                 {'errors': 'Рецепт уже добавлен в избранное'}
-#             )
-#         return data
 class FavoriteShopCartSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
@@ -278,35 +233,3 @@ class FavoriteShopCartSerializer(serializers.Serializer):
     def to_representation(self, instance):
         recipe = SpecialRecipeSerializer(instance.recipe)
         return recipe.data
-
-
-# class ShoppingCartSerializer(FavoriteSerializer):
-#     # class Meta:
-#     #     model = ShoppingCart
-#     #     fields = ('recipe', 'user')
-#
-#     def validate(self, data):
-#         request = self.context.get('request')
-#         recipe = data['recipe'].id
-#         user = request.user
-#         if (
-#             request.method == 'POST'
-#             and ShoppingCart.objects.filter(user=user, recipe=recipe).exists()
-#         ):
-#             raise serializers.ValidationError(
-#                 {'errors': 'Рецепт уже добавлен в список покупок'}
-#             )
-#         if (
-#             request.method == 'DELETE'
-#             and not ShoppingCart.objects.filter(
-#                 user=user,
-#                 recipe=recipe
-#             ).exists()
-#         ):
-#             raise serializers.ValidationError(
-#                 {'errors': 'Рецепта нет в списке покупок.'}
-#             )
-#         return data
-#
-#     def create(self, validated_data):
-#         return ShoppingCart.objects.create(**validated_data)
