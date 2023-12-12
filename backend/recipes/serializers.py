@@ -204,13 +204,6 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-<<<<<<< Updated upstream
-class FavoriteShopCartSerializer(serializers.Serializer):
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
-=======
 # class FavoriteSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Favorite
@@ -255,7 +248,6 @@ class FavoriteShopCartSerializer(serializers.Serializer):
 #         return data
 class FavoriteShopCartSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
->>>>>>> Stashed changes
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
 
     def get_model(self, url):
@@ -270,31 +262,6 @@ class FavoriteShopCartSerializer(serializers.Serializer):
         recipe = data['recipe']
         if (
             request.method == 'POST'
-<<<<<<< Updated upstream
-            and self.get_model(request.path).objects.filter(
-                user=user,
-                recipe=recipe
-            ).exists()
-        ):
-            raise serializers.ValidationError(
-                {'errors': 'Рецепт уже добавлен.'}
-            )
-        if (
-            request.method == 'DELETE'
-            and not self.get_model(request.path).objects.filter(
-                user=user,
-                recipe=recipe
-            ).exists()
-        ):
-            raise serializers.ValidationError(
-                {'errors': 'Рецепт не добавлен.'}
-            )
-        return data
-
-    def create(self, validated_data):
-        return (self.get_model(self.context.get('request').path)
-                .objects.create(**validated_data))
-=======
             and self.get_model(request.path).objects.filter(user=user, recipe=recipe).exists()
         ):
             raise serializers.ValidationError({'errors': 'Рецепт уже добавлен.'})
@@ -307,13 +274,10 @@ class FavoriteShopCartSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return self.get_model(self.context.get('request').path).objects.create(**validated_data)
->>>>>>> Stashed changes
 
     def to_representation(self, instance):
         recipe = SpecialRecipeSerializer(instance.recipe)
         return recipe.data
-<<<<<<< Updated upstream
-=======
 
 
 # class ShoppingCartSerializer(FavoriteSerializer):
@@ -346,4 +310,3 @@ class FavoriteShopCartSerializer(serializers.Serializer):
 #
 #     def create(self, validated_data):
 #         return ShoppingCart.objects.create(**validated_data)
->>>>>>> Stashed changes

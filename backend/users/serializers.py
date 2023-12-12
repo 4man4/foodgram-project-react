@@ -41,6 +41,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class PasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True)
+    current_password = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 class SpecialRecipeSerializer(serializers.ModelSerializer):
