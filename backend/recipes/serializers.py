@@ -202,7 +202,10 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteShopCartSerializer(serializers.Serializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), default=serializers.CurrentUserDefault())
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        default=serializers.CurrentUserDefault(),
+    )
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
 
     def get_model(self, url):
@@ -215,20 +218,27 @@ class FavoriteShopCartSerializer(serializers.Serializer):
         request = self.context.get('request')
         user = data['user']
         recipe = data['recipe']
+        queryset = (self.get_model(request.path)
+                    .objects.filter(user=user, recipe=recipe).exists())
         if (
             request.method == 'POST'
-            and self.get_model(request.path).objects.filter(user=user, recipe=recipe).exists()
+            and queryset
         ):
-            raise serializers.ValidationError({'errors': 'Рецепт уже добавлен.'})
+            raise serializers.ValidationError(
+                {'errors': 'Рецепт уже добавлен.'}
+            )
         if (
             request.method == 'DELETE'
-            and not self.get_model(request.path).objects.filter(user=user, recipe=recipe).exists()
+            and not queryset
         ):
-            raise serializers.ValidationError({'errors': 'Рецепт не добавлен.'})
+            raise serializers.ValidationError(
+                {'errors': 'Рецепт не добавлен.'}
+            )
         return data
 
     def create(self, validated_data):
-        return self.get_model(self.context.get('request').path).objects.create(**validated_data)
+        return (self.get_model(self.context.get('request').path)
+                .objects.create(**validated_data))
 
     def to_representation(self, instance):
         recipe = SpecialRecipeSerializer(instance.recipe)

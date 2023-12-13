@@ -28,9 +28,6 @@ class UserSerializer(serializers.ModelSerializer):
             author=obj
         ).exists()
 
-    def validate(self, data):
-        pass
-
 
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -84,3 +81,26 @@ class SubscriptionsSerializer(UserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+    def validate(self, data):
+        request = self.context.get('request')
+        user = self.context.get('user')
+        author = self.context.get('author')
+        if (
+            request.method == 'POST'
+            and Follow.objects.filter(user=user, author=author).exists()
+        ):
+            raise serializers.ValidationError({'errors': 'Вы уже подписаны.'})
+        if (
+            request.method == 'POST'
+            and user.pk == author.pk
+        ):
+            raise serializers.ValidationError(
+                {'errors': 'Невозможно подписаться на себя.'}
+            )
+        if (
+            request.method == 'DELETE'
+            and not Follow.objects.filter(user=user, author=author).exists()
+        ):
+            raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
+        return data
