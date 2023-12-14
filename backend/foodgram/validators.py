@@ -5,8 +5,6 @@ from rest_framework.serializers import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from users.models import Follow
-
 
 def custom_exception(exc):
     if isinstance(exc, ValidationError):
