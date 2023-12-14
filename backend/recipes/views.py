@@ -3,15 +3,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework import viewsets, status
-from rest_framework.permissions import (
-    AllowAny,
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated,
-)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
 
 from .serializers import (
     TagSerializer,
@@ -20,6 +15,7 @@ from .serializers import (
     ShowRecipeSerializer,
     FavoriteShopCartSerializer,
 )
+
 from .filters import IngredientFilter, RecipeFilter
 from .models import (
     Recipe,
@@ -30,6 +26,7 @@ from .models import (
     ShoppingCart,
 )
 from foodgram.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
+from foodgram.validators import custom_exception
 
 
 class TagView(viewsets.ReadOnlyModelViewSet):
@@ -109,12 +106,7 @@ class FavoriteShopCartView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def handle_exception(self, exc):
-        if isinstance(exc, ValidationError):
-            return Response(
-                {'errors': exc.detail['errors'][0]},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return super().handle_exception(exc)
+        return custom_exception(exc)
 
 
 @api_view(['GET'])

@@ -65,7 +65,6 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'foodgram.permissions.IsAuthorOrAdminOrReadOnly',
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -74,9 +73,8 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'backend.foodgram.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'foodgram.pagination.CustomPagination',
     'PAGE_SIZE': const.PAGE_SIZE,
-    # 'EXCEPTION_HANDLER': 'foodgram.validation.custom_exception',
 }
 
 DATABASES = {

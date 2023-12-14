@@ -1,7 +1,8 @@
 from django.db import models
+from django.forms import ValidationError
 
 import foodgram.constants as const
-import recipes.validators as validate
+import foodgram.validators as validate
 from users.models import User
 
 
@@ -122,7 +123,8 @@ class RecipeIngredients(models.Model):
         )
 
     def __str__(self):
-        return f'Ингредиент {self.ingredient} в рецепте {self.recipe} в количестве {self.amount}'
+        return (f'Ингредиент {self.ingredient} в рецепте '
+                f'{self.recipe} в количестве {self.amount}')
 
 
 class Tag(models.Model):
@@ -210,6 +212,13 @@ class Favorite(models.Model):
     def __str__(self):
         return f'Рецепт {self.recipe} в избранном у пользователя {self.user}'
 
+    def clean(self):
+        if Favorite.objects.filter(
+                user=self.user,
+                recipe=self.recipe
+        ).exists():
+            raise ValidationError('Рецепт уже добавлен.')
+
 
 class ShoppingCart(models.Model):
     """Модель списка покупок."""
@@ -238,3 +247,10 @@ class ShoppingCart(models.Model):
     def __str__(self):
         return (f'{self.recipe} в списке покупок у пользователя '
                 f'{self.user.first_name} {self.user.last_name}')
+
+    def clean(self):
+        if ShoppingCart.objects.filter(
+                user=self.user,
+                recipe=self.recipe
+        ).exists():
+            raise ValidationError('Рецепт уже добавлен.')

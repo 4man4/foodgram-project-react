@@ -52,7 +52,11 @@ class TagAdmin(ModelAdmin):
 
 @register(Favorite)
 class FavoriteAdmin(ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'recipe',
+        'user'
+    )
 
 
 @register(ShoppingCart)
