@@ -17,26 +17,6 @@ def custom_exception(exc):
     return APIView.handle_exception(exc)
 
 
-def validate_subscriptions(serializer):
-    request = serializer.context.get('request')
-    user = serializer.context.get('user')
-    author = serializer.context.get('author')
-    if (
-            request.method == 'POST'
-            and Follow.objects.filter(user=user, author=author).exists()
-    ):
-        raise ValidationError({'errors': 'Вы уже подписаны.'})
-    if (
-            request.method == 'POST'
-            and user.pk == author.pk
-    ):
-        raise ValidationError({'errors': 'Невозможно подписаться на себя.'})
-    if (request.method == 'DELETE'
-            and not Follow.objects.filter(user=user, author=author).exists()):
-        raise ValidationError({'errors': 'Вы не подписаны.'})
-    return serializer.context
-
-
 def validate_positive_small_integer(value):
     if not (0 <= value <= 32767):
         raise ValidationError(

@@ -4,7 +4,7 @@
 
 ## Описание
 Кулинарная социальная сеть &#127858;<br>
-[https://4man4.ddns.net](https://4man4.ddns.net)
+[http://4man4.ddns.net](http://4man4.ddns.net)
 
 Позволяет публиковать рецепты своих любимых блюд, добавлять в избранное чужие и получать список покупок для их приготовления.
 
@@ -64,7 +64,7 @@ sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_stat
 ```
 
 После выполнения команд проект будет доступен по адресу:<br>
-[https://localhost:8000/](https://localhost:9000/)
+[http://localhost:8000/](http://localhost:8000/)
 
 Остановить проект можно двумя способами:
 - Нажать `Ctrl` + `C` в терминале, откуда был выполнен запуск
