@@ -8,9 +8,9 @@ volumes:
 services:
 
   frontend:
-    image: bidoubletwice/foodgram_frontend
     container_name: frontend
-    command: cp -r /app/build/. /static/
+    image: bidoubletwice/foodgram_frontend
+    command: cp -r /app/result_build/. /static/
     volumes:
       - static:/static/
 
@@ -23,8 +23,8 @@ services:
       - ./.env
 
   backend:
-    image: bidoubletwice/foodgram_backend
     container_name: backend
+    image: bidoubletwice/foodgram_backend
     restart: always
     volumes:
       - static:/app/static/

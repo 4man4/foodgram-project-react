@@ -1,7 +1,10 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -18,18 +21,12 @@ from .models import User, Follow
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return UserSerializer
         return CreateUserSerializer
-
-    @action(detail=False, permission_classes=(IsAuthenticated,))
-    def me(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=request.user.id)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
 
     def perform_create(self, serializer):
         if 'password' in self.request.data:
@@ -44,6 +41,12 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save(password=password)
         else:
             serializer.save()
+
+    @action(detail=False, permission_classes=(IsAuthenticated,))
+    def me(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=request.user.id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
     @action(
         ['post'],

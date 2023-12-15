@@ -80,16 +80,28 @@ sudo docker compose -f docker-compose.yml down
 ```bash
 sudo cp .env.example .env
 ```
-
-_POSTGRES_DB_ - имя БД
-_POSTGRES_USER_ - имя пользователя БД
-_POSTGRES_PASSWORD_ - пароль пользователя БД 
-_DB_NAME_ - имя образа БД
-_DB_HOST_ - имя машины с БД 
-_DB_PORT_ - порт для подключения к БД
+И заполнить их:
+### Backend settings
 _SECRET_KEY_ - токен Django-приложения  
 _DEBUG_ - активация режима отладки (по умолчанию - False)  
 _ALLOWED_HOSTS_ - разрешенные IP-адреса и доменные имена  
+_LANGUAGE_CODE_ - язык проекта 
+_TIME_ZONE_ - часовой пояс
+
+### Database settings
+_DB_ENGINE_ - используемая в проекте БД
+_POSTGRES_DB_ - имя БД
+_POSTGRES_USER_ - имя пользователя БД
+_POSTGRES_PASSWORD_ - пароль пользователя БД 
+_POSTGRES_HOST_ - имя контейнера с БД 
+_POSTGRES_PORT_ - порт для подключения к БД
+
+### Superuser settings
+_DJANGO_SUPERUSER_USERNAME_ - имя пользователя администратора
+_DJANGO_SUPERUSER_PASSWORD_ - пароль
+_DJANGO_SUPERUSER_FIRSTNAME_ - имя
+_DJANGO_SUPERUSER_LASTNAME_ - фамилия
+_DJANGO_SUPERUSER_EMAIL_ - электронная почта
 
 
 ## Автор

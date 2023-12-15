@@ -124,11 +124,21 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           cd dev/foodgram
-          sudo docker compose -f docker-compose.yml pull
           sudo docker compose -f docker-compose.yml down
+          sudo docker system prune -f -a --volumes
+          sudo journalctl --vacuum-files=100
+          sudo journalctl --vacuum-time=10d
+          sudo journalctl --vacuum-size=1M
+          sudo docker compose -f docker-compose.yml pull
           sudo docker compose -f docker-compose.yml up -d
           sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
           sudo docker compose -f docker-compose.yml exec backend python manage.py import_data
+          sudo docker compose -f docker-compose.yml exec backend . .env
+          sudo docker compose -f docker-compose.yml exec backend python manage.py createsuperuser --username $DJANGO_SUPERUSER_USERNAME \
+                                                                                                  --first_name $DJANGO_SUPERUSER_FIRSTNAME \
+                                                                                                  --last_name $DJANGO_SUPERUSER_LASTNAME \
+                                                                                                  --email $DJANGO_SUPERUSER_EMAIL \
+                                                                                                  --noinput
           sudo docker compose -f docker-compose.yml exec backend cp -r /app/static/. /static/
 
   send_message:

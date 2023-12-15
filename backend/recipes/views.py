@@ -1,4 +1,4 @@
-from django.db.models import Sum, OuterRef, Exists
+from django.db.models import Sum, OuterRef, Exists, Value
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -47,7 +47,6 @@ class IngredientsView(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeView(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
@@ -63,19 +62,25 @@ class RecipeView(viewsets.ModelViewSet):
         return context
 
     def get_queryset(self):
-        return Recipe.objects.annotate(
-            is_favorited=Exists(
-                Favorite.objects.filter(
-                    recipe=OuterRef('pk'),
-                    user=self.request.user
-                )
-            ),
-            is_in_shopping_cart=Exists(
-                ShoppingCart.objects.filter(
-                    recipe=OuterRef('pk'),
-                    user=self.request.user
+        user = self.request.user
+        if user.is_authenticated:
+            return Recipe.objects.annotate(
+                is_favorited=Exists(
+                    Favorite.objects.filter(
+                        recipe=OuterRef('pk'),
+                        user=user
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingCart.objects.filter(
+                        recipe=OuterRef('pk'),
+                        user=user
+                    )
                 )
             )
+        return Recipe.objects.annotate(
+            is_favorited=Value(False),
+            is_in_shopping_cart=Value(False)
         )
 
 
