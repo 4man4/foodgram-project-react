@@ -15,7 +15,6 @@ from .serializers import (
     PasswordSerializer,
     SubscriptionsSerializer,
 )
-
 from .models import User, Follow
 
 
