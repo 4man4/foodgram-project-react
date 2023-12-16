@@ -26,7 +26,7 @@ from .models import (
     ShoppingCart,
 )
 from foodgram.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
-from foodgram.validators import custom_exception
+# from foodgram.validators import custom_exception
 
 
 class TagView(viewsets.ReadOnlyModelViewSet):
@@ -110,8 +110,8 @@ class FavoriteShopCartView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def handle_exception(self, exc):
-        return custom_exception(exc)
+    # def handle_exception(self, exc):
+    #     return custom_exception(exc)
 
 
 @api_view(['GET'])
