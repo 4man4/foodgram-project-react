@@ -100,14 +100,7 @@ DJOSER = {
         'current_user': 'users.serializers.UserSerializer',
     },
     'PERMISSIONS': {
-        'user': [
-            'djoser.permissions.UserIsAdminOrOwner',
-            'rest_framework.permissions.AllowAny'
-        ],
-        'user_list': [
-            'djoser.permissions.UserIsAdminOrOwner',
-            'rest_framework.permissions.AllowAny'
-        ],
+        'user_create': ['djoser.permissions.AllowAny'],
     }
 }
 

@@ -136,7 +136,7 @@ jobs:
           cd dev/foodgram
           sudo docker compose -f docker-compose.yml pull
           sudo docker compose -f docker-compose.yml down
-          sudo docker system prune -f -a
+          sudo docker system prune -fa
           sudo journalctl --vacuum-files=100
           sudo journalctl --vacuum-time=10d
           sudo journalctl --vacuum-size=1M
