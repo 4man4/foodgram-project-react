@@ -94,6 +94,21 @@ DJOSER = {
     'USER_ID_FIELD': 'id',
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CreateUserSerializer',
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': [
+            'djoser.permissions.UserIsAdminOrOwner',
+            'rest_framework.permissions.AllowAny'
+        ],
+        'user_list': [
+            'djoser.permissions.UserIsAdminOrOwner',
+            'rest_framework.permissions.AllowAny'
+        ],
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
