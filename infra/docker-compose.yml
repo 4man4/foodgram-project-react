@@ -7,28 +7,14 @@ volumes:
 
 services:
 
-#  frontend:
-#    container_name: frontend
-#    build:
-#      context: ../frontend
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ../frontend/:/app/result_build/
-  frontend:
-    container_name: frontend
-    image: bidoubletwice/foodgram_frontend
-    command: cp -r /app/build/. /app/static/
-    volumes:
-      - static:/app/static/
-
   db:
     container_name: db
     image: postgres:13.10
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
 
   backend:
     container_name: backend
@@ -41,6 +27,21 @@ services:
       - db
     env_file: .env
 
+#  frontend:
+#    container_name: frontend
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ../frontend/:/app/result_build/
+  frontend:
+    container_name: frontend
+    image: bidoubletwice/foodgram_frontend
+#    command: cp -r /app/build/. /app/static/
+    volumes:
+#      - static:/app/static/
+      - ../frontend/:/app/result_build/
+
 #  nginx:
 #    container_name: nginx
 #    image: nginx:1.19.3
@@ -50,18 +51,35 @@ services:
 #      - ./nginx.conf:/etc/nginx/conf.d/default.conf
 #      - ../frontend/build:/usr/share/nginx/html/
 #      - ../docs/:/usr/share/nginx/html/api/docs/
+#    depends_on:
+#      - backend
+#  nginx:
+#    container_name: nginx
+#    image: bidoubletwice/foodgram_gateway
+##    restart: always
+#    command: cp -r /tmp/docs/. /static/docs/
+#    ports:
+#      - "80:80"
+#    volumes:
+##      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+##      - ../frontend/build:/usr/share/nginx/html/
+##      - ../docs/:/usr/share/nginx/html/api/docs/
+#      - static:/static/
+#      - media:/media/
+#    depends_on:
+#      - backend
+
   nginx:
-    container_name: nginx
-    image: bidoubletwice/foodgram_gateway
-    restart: always
-    command: cp -r /tmp/docs/. /static/docs/
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
-#      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-#      - ../frontend/build:/usr/share/nginx/html/
-#      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/static/
-      - media:/media/
+      - static:/var/html/static
+      - media:/var/html/media
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+    restart: always
     depends_on:
       - backend
+      - frontend
