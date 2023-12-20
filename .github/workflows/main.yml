@@ -111,17 +111,7 @@ jobs:
           sudo journalctl --vacuum-size=1M
           sudo docker compose -f docker-compose.yml pull
           sudo docker compose -f docker-compose.yml up -d
-          sudo docker compose -f docker-compose.yml exec backend touch .env
-          sudo docker compose -f docker-compose.yml exec backend echo ${{ secrets.FILE_ENV }} >> .env
-          sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
-          sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
-          sudo docker compose -f docker-compose.yml exec backend python manage.py import_data
-          sudo docker compose -f docker-compose.yml exec backend source .env
-          sudo docker compose -f docker-compose.yml exec backend python manage.py createsuperuser --username $DJANGO_SUPERUSER_USERNAME \
-                                                                                                  --first_name $DJANGO_SUPERUSER_FIRSTNAME \
-                                                                                                  --last_name $DJANGO_SUPERUSER_LASTNAME \
-                                                                                                  --email $DJANGO_SUPERUSER_EMAIL \
-                                                                                                  --noinput
+          sudo docker compose -f docker-compose.yml exec backend echo "${{ secrets.FILE_ENV }}" > .env
 
   send_message:
     name: Send notification to Telegram
