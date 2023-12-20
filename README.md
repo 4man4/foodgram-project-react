@@ -26,14 +26,14 @@
 ## Подготовка и запуск проекта с DockerHub
 
 Для запуска проекта необходимо создать каталог `foodgram` и перейти в него:
-```bash
+```shell
 mkdir foodgram && cd foodgram
 ```
 
 Скопировать файл `docker-compose.production.yml` в каталог проекта `foodgram`.
 
 Сборка и запуск проекта:
-```bash
+```shell
 sudo docker compose -f docker-compose.production.yml up
 ```
 
@@ -41,67 +41,81 @@ sudo docker compose -f docker-compose.production.yml up
 ## Клонирование и запуск проекта с GitHub
 
 Клонировать репозиторий:
-```bash
+```shell
 git clone git@github.com:4man4/foodgram-project-react.git
 ```
 
-Перейти в каталог проекта и выполнить сборку и запуск проекта:
-```bash
-cd foodgram && sudo docker compose -f docker-compose.yml up
+Необходимо скопировать файлы `docker-compose.yml` и `.env` в каталог проекта на сервер.
+После первого коммита в ветку `master` произойдет автоматический деплой проекта.
+
+После деплоя подключиться к серверу по протоколу SSH, перейти в каталог проекта и выполнить следующие команды:
+
+#### Войти в контейнер `backend`
+```shell
+sudo docker exec -it backend bash
 ```
 
-Выполнить подготовку БД:
-```bash
-sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
+#### Выполнить подготовку БД:
+```shell
+python manage.py migrate
 ```
 
-Выполнить подготовку статики:
-```bash
-sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
-```
-```bash
-sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_static/. /static/
+#### Выполнить подготовку статики:
+```shell
+python manage.py collectstatic
 ```
 
-После выполнения команд проект будет доступен по адресу:<br>
-[http://localhost:8000/](http://localhost:8000/)
-
-Остановить проект можно двумя способами:
-- Нажать `Ctrl` + `C` в терминале, откуда был выполнен запуск
-- Выполнить команду в новом терминале
-```bash
-sudo docker compose -f docker-compose.yml down
+#### Импортировать ингредиенты и теги в БД:
+```shell
+python manage.py import_data
 ```
+
+#### Подготовить информацию для создания администратора, заменив значения в кавычках на свои:
+```shell
+echo -e "DJANGO_SUPERUSER_USERNAME='username'\nDJANGO_SUPERUSER_PASSWORD='password'\nDJANGO_SUPERUSER_FIRSTNAME='firstname'\nDJANGO_SUPERUSER_LASTNAME='lastname'\nDJANGO_SUPERUSER_EMAIL='email@gmail.com'\n" > .env
+```
+
+#### Загрузить переменные среды:
+```shell
+source .env
+```
+
+#### Создать администратора:
+```shell
+python manage.py createsuperuser --username $DJANGO_SUPERUSER_USERNAME --first_name $DJANGO_SUPERUSER_FIRSTNAME --last_name $DJANGO_SUPERUSER_LASTNAME --email $DJANGO_SUPERUSER_EMAIL --noinput
+```
+
+После выполнения команд проект будет доступен по вашему адресу.
+
+Пример готового проекта:<br>
+[http://4man4.ddns.net/](http://4man4.ddns.net/)
 
 
 ## Индивидуальные переменные и настройки
 
-Скопировать шаблон с индивидуальными переменными окружения:
-```bash
-sudo cp .env.example .env
-```
-И заполнить их:
-### Backend settings
-_SECRET_KEY_ - токен Django-приложения  
-_DEBUG_ - активация режима отладки (по умолчанию - False)  
-_ALLOWED_HOSTS_ - разрешенные IP-адреса и доменные имена  
-_LANGUAGE_CODE_ - язык проекта 
-_TIME_ZONE_ - часовой пояс
+Скопировать шаблон `.env.example` с индивидуальными переменными окружения и заполнить их:
 
-### Database settings
-_DB_ENGINE_ - используемая в проекте БД
-_POSTGRES_DB_ - имя БД
-_POSTGRES_USER_ - имя пользователя БД
-_POSTGRES_PASSWORD_ - пароль пользователя БД 
-_POSTGRES_HOST_ - имя контейнера с БД 
-_POSTGRES_PORT_ - порт для подключения к БД
+&#35; Backend settings<br>
+_SECRET_KEY_ - токен Django-приложения<br>
+_DEBUG_ - активация режима отладки (по умолчанию - False)<br>
+_ALLOWED_HOSTS_ - разрешенные IP-адреса и доменные имена<br>
+_LANGUAGE_CODE_ - язык проекта<br>
+_TIME_ZONE_ - часовой пояс<br>
 
-### Superuser settings
-_DJANGO_SUPERUSER_USERNAME_ - имя пользователя администратора
-_DJANGO_SUPERUSER_PASSWORD_ - пароль
-_DJANGO_SUPERUSER_FIRSTNAME_ - имя
-_DJANGO_SUPERUSER_LASTNAME_ - фамилия
-_DJANGO_SUPERUSER_EMAIL_ - электронная почта
+&#35; Database settings<br>
+_DB_ENGINE_ - используемая в проекте БД<br>
+_POSTGRES_DB_ - имя БД<br>
+_POSTGRES_USER_ - имя пользователя БД<br>
+_POSTGRES_PASSWORD_ - пароль пользователя БД <br>
+_POSTGRES_HOST_ - имя контейнера с БД<br>
+_POSTGRES_PORT_ - порт для подключения к БД<br>
+
+&#35; Superuser settings<br>
+_DJANGO_SUPERUSER_USERNAME_ - имя пользователя администратора<br>
+_DJANGO_SUPERUSER_PASSWORD_ - пароль<br>
+_DJANGO_SUPERUSER_FIRSTNAME_ - имя<br>
+_DJANGO_SUPERUSER_LASTNAME_ - фамилия<br>
+_DJANGO_SUPERUSER_EMAIL_ - электронная почта<br>
 
 
 ## Автор
