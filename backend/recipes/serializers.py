@@ -216,10 +216,10 @@ class FavoriteShopCartSerializer(serializers.Serializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        user = data['user']
-        recipe = data['recipe']
-        queryset = (self.get_model(request.path)
-                    .objects.filter(user=user, recipe=recipe).exists())
+        queryset = (self.get_model(request.path).objects.filter(
+            user=data['user'],
+            recipe=data['recipe']
+        ).exists())
         if (
             request.method == 'POST'
             and queryset

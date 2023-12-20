@@ -1,18 +1,18 @@
 import re
 
 from rest_framework.exceptions import ValidationError
-# from rest_framework import status
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
-# def custom_exception(exc):
-#     if isinstance(exc, ValidationError):
-#         return Response(
-#             {'errors': exc.detail['errors'][0]},
-#             status=status.HTTP_400_BAD_REQUEST
-#         )
-#     return APIView().handle_exception(exc)
+def custom_exception(exc):
+    if isinstance(exc, ValidationError):
+        return Response(
+            {'errors': exc.detail['errors'][0]},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    return APIView().handle_exception(exc)
 
 
 def validate_positive_small_integer(value):
