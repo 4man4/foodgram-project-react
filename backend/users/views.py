@@ -3,7 +3,8 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status, viewsets
 from rest_framework.permissions import (
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly
+    # IsAuthenticatedOrReadOnly,
+    AllowAny,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -20,7 +21,7 @@ from .models import User, Follow
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (AllowAny,)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -44,11 +45,11 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, permission_classes=(IsAuthenticated,))
     def me(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=request.user.id)
-        serializer = UserSerializer(user)
+        serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
 
     @action(
-        ['post'],
+        methods=('post',),
         detail=False,
         permission_classes=(IsAuthenticated,),
     )
@@ -95,6 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubscriptionsSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
