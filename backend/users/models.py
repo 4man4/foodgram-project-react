@@ -60,18 +60,16 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'Подписчик'
         verbose_name_plural = 'Подписчики'
-        models.UniqueConstraint(
-            fields=('user', 'author'),
-            name='unique_follow'
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_follow'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}'
 
     def clean(self):
-        user = self.user
-        author = self.author
-        if user == author:
+        if self.user == self.author:
             raise ValidationError('Невозможно подписаться на себя.')
-        if Follow.objects.filter(user=user, author=author).exists():
-            raise ValidationError('Вы уже подписаны.')

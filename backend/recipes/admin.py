@@ -37,6 +37,7 @@ class RecipeAdmin(ModelAdmin):
 @register(Ingredient)
 class IngredientAdmin(ModelAdmin):
     list_display = (
+        'id',
         'name',
         'measurement_unit',
     )
@@ -47,21 +48,34 @@ class IngredientAdmin(ModelAdmin):
 
 @register(Tag)
 class TagAdmin(ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'name',
+        'color',
+        'slug',
+    )
 
 
 @register(Favorite)
 class FavoriteAdmin(ModelAdmin):
     list_display = (
         'id',
+        'recipe_id',
         'recipe',
-        'user'
+        'user_id',
+        'user',
     )
 
 
 @register(ShoppingCart)
 class ShoppingCartAdmin(ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'recipe_id',
+        'recipe',
+        'user_id',
+        'user',
+    )
 
 
 site.empty_value_display = 'Не задано'

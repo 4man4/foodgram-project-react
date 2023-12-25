@@ -84,10 +84,12 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
-        models.UniqueConstraint(
-            fields=('name', 'measurement_unit'),
-            name='unique_ingredient'
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_ingredient'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -111,16 +113,18 @@ class RecipeIngredients(models.Model):
     amount = models.PositiveSmallIntegerField(
         null=True,
         verbose_name='Количество',
-        validators=(validate.validate_positive_small_integer,),
+        # validators=(validate.validate_positive_small_integer,),
     )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
-        models.UniqueConstraint(
-            fields=['recipe', 'ingredient'],
-            name='unique_ingredient',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_recipeingredient',
+            )
+        ]
 
     def __str__(self):
         return (f'Ингредиент {self.ingredient} в рецепте '
@@ -176,10 +180,12 @@ class RecipeTags(models.Model):
     class Meta:
         verbose_name = 'Тег рецепта'
         verbose_name_plural = 'Теги рецептов'
-        models.UniqueConstraint(
-            fields=['recipe', 'tag'],
-            name='unique_tag',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_recipetag',
+            )
+        ]
 
     def __str__(self):
         return f'Тег {self.tag} в рецепте {self.recipe}'
@@ -204,20 +210,16 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='unique_favorite',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite',
+            )
+        ]
 
     def __str__(self):
-        return f'Рецепт {self.recipe} в избранном у пользователя {self.user}'
-
-    def clean(self):
-        if Favorite.objects.filter(
-                user=self.user,
-                recipe=self.recipe
-        ).exists():
-            raise ValidationError('Рецепт уже добавлен.')
+        return (f'Рецепт {self.recipe} в избранном у пользователя '
+                f'{self.user.first_name} {self.user.last_name}')
 
 
 class ShoppingCart(models.Model):
@@ -239,18 +241,13 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='unique_shopping_cart',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart',
+            )
+        ]
 
     def __str__(self):
-        return (f'{self.recipe} в списке покупок у пользователя '
+        return (f'Рецепт {self.recipe} в списке покупок у пользователя '
                 f'{self.user.first_name} {self.user.last_name}')
-
-    def clean(self):
-        if ShoppingCart.objects.filter(
-                user=self.user,
-                recipe=self.recipe
-        ).exists():
-            raise ValidationError('Рецепт уже добавлен.')

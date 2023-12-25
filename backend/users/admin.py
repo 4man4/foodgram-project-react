@@ -22,7 +22,9 @@ class UserAdmin(ModelAdmin):
 class FollowAdmin(ModelAdmin):
     list_display = (
         'id',
+        'author_id',
         'author',
+        'user_id',
         'user',
     )
 

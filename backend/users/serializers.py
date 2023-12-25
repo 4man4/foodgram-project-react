@@ -1,7 +1,8 @@
+import re
+
 from rest_framework import serializers
 
 from recipes.models import Recipe
-
 from .models import User, Follow
 
 
@@ -20,13 +21,10 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return Follow.objects.filter(
-                user=user,
-                author=obj,
-            ).exists()
-        return False
+        request = self.context.get('request')
+        return (request
+                and request.user.is_authenticated
+                and request.user.follower.filter(author=obj).exists())
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -71,7 +69,7 @@ class SubscriptionsSerializer(UserSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
-        if recipes_limit:
+        if bool(re.match(r'^\d+$', recipes_limit)):
             recipes = recipes[:int(recipes_limit)]
         return SpecialRecipeSerializer(
             recipes,
