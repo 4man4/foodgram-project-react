@@ -87,14 +87,14 @@ class RecipeView(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({'request': self.request})
-        if self.get_serializer_class() == CreateRecipeSerializer:
-            context.update({
-                'all_tags': Tag.objects.all().values_list('id', flat=True),
-                'all_ingredients': Ingredient.objects.all().values_list(
-                    'id',
-                    flat=True
-                ),
-            })
+        # if self.get_serializer_class() == CreateRecipeSerializer:
+        #     context.update({
+        #         'all_tags': Tag.objects.all().values_list('id', flat=True),
+        #         'all_ingredients': Ingredient.objects.all().values_list(
+        #             'id',
+        #             flat=True
+        #         ),
+        #     })
         return context
 
 
