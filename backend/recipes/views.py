@@ -58,11 +58,6 @@ class RecipeView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        # if self.get_serializer_class() == CreateRecipeSerializer:
-        #     return Recipe.objects.annotate(
-        #         all_tags=Value(Tag.objects.all().values_list('id', flat=True)),
-        #         all_ingredients=Value(Ingredient.objects.all().values_list('id', flat=True)),
-        #     )
         if user.is_authenticated:
             return Recipe.objects.annotate(
                 is_favorited=Exists(
@@ -91,15 +86,11 @@ class RecipeView(viewsets.ModelViewSet):
             for ingredient in self.request.data['ingredients']:
                 if ingredient['id'] not in ingredients_ids:
                     ingredients_ids.append(ingredient['id'])
-            context.update({'ingredients_obj': Ingredient.objects.filter(pk__in=ingredients_ids)})
-        # if self.get_serializer_class() == CreateRecipeSerializer:
-        #     context.update({
-        #         'all_tags': Tag.objects.all().values_list('id', flat=True),
-        #         'all_ingredients': Ingredient.objects.all().values_list(
-        #             'id',
-        #             flat=True
-        #         ),
-        #     })
+            context.update({
+                'ingredients_obj': Ingredient.objects.filter(
+                    pk__in=ingredients_ids
+                )
+            })
         return context
 
 

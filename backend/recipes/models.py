@@ -1,5 +1,4 @@
 from django.db import models
-from django.forms import ValidationError
 
 import foodgram.constants as const
 import foodgram.validators as validate

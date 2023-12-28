@@ -1,6 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
-from django.db.models import Value
 
 import foodgram.constants as const
 from users.models import User
@@ -43,16 +42,6 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
         return value
 
 
-# class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
-#     id = serializers.PrimaryKeyRelatedField(
-#         queryset=Ingredient.objects.all()
-#     )
-#
-#     class Meta:
-#         model = RecipeIngredients
-#         fields = ('id', 'amount')
-#
-#
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -60,12 +49,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    # tags = TagSerializer(read_only=True, many=True)
-    # author = UserSerializer(read_only=True)
-    # ingredients = RecipeIngredientsSerializer(
-    #     source='recipeingredients',
-    #     many=True,
-    # )
 
     class Meta:
         model = Recipe
@@ -90,31 +73,13 @@ class CreateRecipeSerializer(RecipeSerializer):
     )
     author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientsSerializer(many=True)
-    # ingredients = AddIngredientToRecipeSerializer(many=True)
     image = Base64ImageField(max_length=None, use_url=True)
-    # cooking_time = serializers.IntegerField()
     is_favorited = serializers.SerializerMethodField(
         'get_is_favorited'
     )
     is_in_shopping_cart = serializers.SerializerMethodField(
         'get_is_in_shopping_cart'
     )
-
-    # class Meta(RecipeSerializer.Meta):
-    #     pass
-        # fields = RecipeSerializer.Meta.fields
-    # class Meta:
-    #     model = Recipe
-    #     fields = (
-    #         'id',
-    #         'tags',
-    #         'author',
-    #         'ingredients',
-    #         'name',
-    #         'image',
-    #         'text',
-    #         'cooking_time',
-    #     )
 
     def get_is_favorited(self):
         return False
@@ -137,14 +102,7 @@ class CreateRecipeSerializer(RecipeSerializer):
                 status.HTTP_400_BAD_REQUEST,
             )
         tags_list = []
-        # all_tags = self.context['all_tags']
-        # all_tags = Tag.objects.all().values_list('id', flat=True)
         for tag in value:
-            # if not (tag.pk in all_tags):
-            #     raise serializers.ValidationError(
-            #         f'Тег {tag} не существует',
-            #         status.HTTP_404_NOT_FOUND,
-            #     )
             if tag.pk in tags_list:
                 raise serializers.ValidationError(
                     f'Тег {tag} повторяется',
@@ -160,15 +118,8 @@ class CreateRecipeSerializer(RecipeSerializer):
                 status.HTTP_400_BAD_REQUEST,
             )
         ingredients_list = []
-        # all_ingredients = self.context['all_ingredients']
-        # all_ingredients = Ingredient.objects.all().values_list('id', flat=True)
         for ingredient in value:
             ingredient_id = ingredient['ingredient']['id']
-            # if not (ingredient_id in all_ingredients):
-            #     raise serializers.ValidationError(
-            #         f'Ингредиент "{ingredient_id}" не существует',
-            #         status.HTTP_404_NOT_FOUND,
-            #     )
             if ingredient_id in ingredients_list:
                 raise serializers.ValidationError(
                     f'Ингредиент "{ingredient_id}" повторяется',
@@ -178,25 +129,12 @@ class CreateRecipeSerializer(RecipeSerializer):
         return value
 
     def make_ingredients(self, recipe, ingredients_obj, ingredients):
-        # amounts_val = []
-        # for ingredient in ingredients:
-        #     amounts_val.append(ingredient['amount'])
-        # RecipeIngredients.objects.bulk_create(
-        #     RecipeIngredients(
-        #         recipe=recipe,
-        #         ingredient__in=self.context['ingredients_obj'],
-        #         amount__in=amounts_val,
-        #     )
-        # )
-
         ingredient_list = []
         for counter in range(len(ingredients)):
             ingredient_list.append(
                 RecipeIngredients(
                     recipe=recipe,
                     ingredient=ingredients_obj[counter],
-                    # ingredient=ingredient['ingredient']['id'],
-                    # ingredient=ingredient['id'].pk,
                     amount=ingredients[counter]['amount'],
                 )
             )
@@ -252,13 +190,6 @@ class FavoriteShopCartSerializer(serializers.Serializer):
         default=serializers.CurrentUserDefault(),
     )
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
-
-    # def get_model(self, url):
-    #     if 'favorite' in url:
-    #         return Favorite
-    #     elif 'shopping_cart' in url:
-    #         return ShoppingCart
-    #
 
 
 class FavoriteSerializer(FavoriteShopCartSerializer):

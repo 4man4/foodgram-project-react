@@ -100,7 +100,10 @@ class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
             )
         if (
                 request.method == 'DELETE'
-                and not Follow.objects.filter(user=user, author=author).exists()
+                and not Follow.objects.filter(
+                    user=user,
+                    author=author
+                ).exists()
         ):
             raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
         return data
