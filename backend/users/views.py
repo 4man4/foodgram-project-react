@@ -12,7 +12,8 @@ from .serializers import (
     UserSerializer,
     CreateUserSerializer,
     PasswordSerializer,
-    SubscriptionsSerializer,
+    ShowSubscriptionsSerializer,
+    EditSubscriptionsSerializer,
 )
 from .models import User, Follow
 
@@ -72,7 +73,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def subscribe(self, request, pk):
         user = request.user
         author = get_object_or_404(User, id=pk)
-        serializer = SubscriptionsSerializer(
+        serializer = EditSubscriptionsSerializer(
             author,
             data=request.data,
             context={'request': request, 'user': user, 'author': author},
@@ -90,7 +91,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = SubscriptionsSerializer
+    serializer_class = ShowSubscriptionsSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):

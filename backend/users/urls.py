@@ -4,11 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import UserViewSet, SubscriptionsViewSet
 
 router = DefaultRouter()
-router.register(
-    'subscriptions',
-    SubscriptionsViewSet,
-    basename='subscriptions'
-)
+router.register('subscriptions', SubscriptionsViewSet, basename='subscriptions')
 router.register('', UserViewSet)
 
 urlpatterns = [

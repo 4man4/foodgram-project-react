@@ -54,7 +54,7 @@ class SpecialRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class SubscriptionsSerializer(UserSerializer):
+class ShowSubscriptionsSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
 
@@ -80,25 +80,27 @@ class SubscriptionsSerializer(UserSerializer):
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
+
+class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
     def validate(self, data):
         request = self.context.get('request')
         user = self.context.get('user')
         author = self.context.get('author')
         if (
-            request.method == 'POST'
-            and Follow.objects.filter(user=user, author=author).exists()
+                request.method == 'POST'
+                and Follow.objects.filter(user=user, author=author).exists()
         ):
             raise serializers.ValidationError({'errors': 'Вы уже подписаны.'})
         if (
-            request.method == 'POST'
-            and user.pk == author.pk
+                request.method == 'POST'
+                and user.pk == author.pk
         ):
             raise serializers.ValidationError(
                 {'errors': 'Невозможно подписаться на себя.'}
             )
         if (
-            request.method == 'DELETE'
-            and not Follow.objects.filter(user=user, author=author).exists()
+                request.method == 'DELETE'
+                and not Follow.objects.filter(user=user, author=author).exists()
         ):
             raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
         return data
