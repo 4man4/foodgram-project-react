@@ -179,25 +179,34 @@ class CreateRecipeSerializer(RecipeSerializer):
             ingredients_list.append(ingredient_id)
         return value
 
-    def make_ingredients(self, recipe, ingredients, tags):
+    def make_tags_ingredients(self, recipe, ingredients_obj, ingredients, tags):
+        # amounts_val = []
+        # for ingredient in ingredients:
+        #     amounts_val.append(ingredient['amount'])
+        # RecipeIngredients.objects.bulk_create(
+        #     RecipeIngredients(
+        #         recipe=recipe,
+        #         ingredient__in=self.context['ingredients_obj'],
+        #         amount__in=amounts_val,
+        #     )
+        # )
+
         ingredient_list = []
-        for ingredient in ingredients:
+        for counter in range(len(ingredients)):
             ingredient_list.append(
                 RecipeIngredients(
                     recipe=recipe,
-                    ingredient=Ingredient.objects.get(
-                        id=ingredient['ingredient']['id']
-                        # id=ingredient['id'].pk
-                    ),
+                    ingredient=ingredients_obj[counter],
                     # ingredient=ingredient['ingredient']['id'],
                     # ingredient=ingredient['id'].pk,
-                    amount=ingredient['amount'],
+                    amount=ingredients[counter]['amount'],
                 )
             )
         RecipeIngredients.objects.bulk_create(ingredient_list)
         recipe.tags.set(tags)
 
     def create(self, validated_data):
+        ingredients_obj = self.context['ingredients_obj']
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(
@@ -206,7 +215,7 @@ class CreateRecipeSerializer(RecipeSerializer):
         )
         recipe.is_favorited = False
         recipe.is_in_shopping_cart = False
-        self.make_ingredients(recipe, ingredients, tags)
+        self.make_tags_ingredients(recipe, ingredients_obj, ingredients, tags)
         return recipe
 
     def update(self, instance, validated_data):
@@ -214,7 +223,7 @@ class CreateRecipeSerializer(RecipeSerializer):
         RecipeIngredients.objects.filter(recipe=instance).delete()
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        self.make_ingredients(instance, ingredients, tags)
+        self.make_tags_ingredients(instance, ingredients, tags)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):

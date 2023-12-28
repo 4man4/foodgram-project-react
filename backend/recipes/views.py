@@ -87,6 +87,11 @@ class RecipeView(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({'request': self.request})
+        ingredients_ids = []
+        for ingredient in self.request.data['ingredients']:
+            if ingredient['id'] not in ingredients_ids:
+                ingredients_ids.append(ingredient['id'])
+        context.update({'ingredients_obj': Ingredient.objects.filter(pk__in=ingredients_ids)})
         # if self.get_serializer_class() == CreateRecipeSerializer:
         #     context.update({
         #         'all_tags': Tag.objects.all().values_list('id', flat=True),
@@ -111,7 +116,7 @@ class FavoriteShopCartView(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except IntegrityError:
-                return Response('Recipe already exists', status=status.HTTP_400_BAD_REQUEST)
+                return Response('Рецепт уже существует', status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -128,8 +133,8 @@ class FavoriteShopCartView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def handle_exception(self, exc):
-    #     return custom_exception(exc)
+    def handle_exception(self, exc):
+        return custom_exception(exc)
 
 
 @api_view(['GET'])
