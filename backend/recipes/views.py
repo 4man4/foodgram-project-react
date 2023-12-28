@@ -1,4 +1,3 @@
-from django.db import IntegrityError
 from django.db.models import Sum, OuterRef, Exists, Value
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -14,7 +13,8 @@ from .serializers import (
     IngredientSerializer,
     CreateRecipeSerializer,
     ShowRecipeSerializer,
-    FavoriteShopCartSerializer,
+    FavoriteSerializer,
+    ShoppingCartSerializer,
 )
 
 from .filters import IngredientFilter, RecipeFilter
@@ -27,7 +27,6 @@ from .models import (
     ShoppingCart,
 )
 from foodgram.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
-from foodgram.validators import custom_exception
 
 
 class TagView(viewsets.ReadOnlyModelViewSet):
@@ -107,35 +106,55 @@ class RecipeView(viewsets.ModelViewSet):
 class FavoriteShopCartView(APIView):
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
 
+
+class FavoriteView(FavoriteShopCartView):
     def post(self, request, pk):
-        serializer = FavoriteShopCartSerializer(
+        serializer = FavoriteSerializer(
             data={'user': request.user.pk, 'recipe': pk},
             context={'request': request},
         )
         if serializer.is_valid(raise_exception=True):
-            try:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except IntegrityError:
-                return Response('Рецепт уже существует', status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        model = Favorite if 'favorite' in request.path else ShoppingCart
-        serializer = FavoriteShopCartSerializer(
+        serializer = FavoriteSerializer(
             data={'user': user.pk, 'recipe': pk},
             context={'request': request}
         )
         if serializer.is_valid(raise_exception=True):
-            queryset = model.objects.filter(user=user, recipe=recipe)
+            queryset = Favorite.objects.filter(user=user, recipe=recipe)
             queryset.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def handle_exception(self, exc):
-        return custom_exception(exc)
+
+class ShoppingCartView(FavoriteShopCartView):
+    def post(self, request, pk):
+        serializer = ShoppingCartSerializer(
+            data={'user': request.user.pk, 'recipe': pk},
+            context={'request': request},
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        serializer = ShoppingCartSerializer(
+            data={'user': user.pk, 'recipe': pk},
+            context={'request': request}
+        )
+        if serializer.is_valid(raise_exception=True):
+            queryset = ShoppingCart.objects.filter(user=user, recipe=recipe)
+            queryset.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

@@ -6,19 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-def custom_exception(exc):
-    if isinstance(exc, ValidationError):
-        return Response(
-            {'errors': exc.detail['errors'][0]},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    return APIView().handle_exception(exc)
-
-
 def validate_positive_small_integer(value):
     if not (0 <= value <= 32767):
         raise ValidationError(
-            'Укажите значение в диапазоне от 0 до 32767 минут.'
+            'Укажите значение в диапазоне от 0 до 32767.'
         )
     return value
 

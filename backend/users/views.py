@@ -8,7 +8,6 @@ from rest_framework.permissions import (
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from foodgram.validators import custom_exception
 from .serializers import (
     UserSerializer,
     CreateUserSerializer,
@@ -88,9 +87,6 @@ class UserViewSet(viewsets.ModelViewSet):
             queryset.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def handle_exception(self, exc):
-        return custom_exception(exc)
 
 
 class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
