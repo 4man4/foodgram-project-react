@@ -87,11 +87,12 @@ class RecipeView(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({'request': self.request})
-        ingredients_ids = []
-        for ingredient in self.request.data['ingredients']:
-            if ingredient['id'] not in ingredients_ids:
-                ingredients_ids.append(ingredient['id'])
-        context.update({'ingredients_obj': Ingredient.objects.filter(pk__in=ingredients_ids)})
+        if self.get_serializer_class() == CreateRecipeSerializer:
+            ingredients_ids = []
+            for ingredient in self.request.data['ingredients']:
+                if ingredient['id'] not in ingredients_ids:
+                    ingredients_ids.append(ingredient['id'])
+            context.update({'ingredients_obj': Ingredient.objects.filter(pk__in=ingredients_ids)})
         # if self.get_serializer_class() == CreateRecipeSerializer:
         #     context.update({
         #         'all_tags': Tag.objects.all().values_list('id', flat=True),
