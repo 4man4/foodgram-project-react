@@ -11,7 +11,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
     username = models.CharField(
-        max_length=const.MAX_LENGTH_USER_USERNAME,
+        max_length=const.MAX_LENGTH_USER_CHARFIELD,
         unique=True,
         blank=False,
         verbose_name='Имя пользователя',
@@ -23,12 +23,12 @@ class User(AbstractUser):
         verbose_name='Электронная почта',
     )
     first_name = models.CharField(
-        max_length=const.MAX_LENGTH_USER_NAME,
+        max_length=const.MAX_LENGTH_USER_CHARFIELD,
         blank=True,
         verbose_name='Имя',
     )
     last_name = models.CharField(
-        max_length=const.MAX_LENGTH_USER_NAME,
+        max_length=const.MAX_LENGTH_USER_CHARFIELD,
         blank=True,
         verbose_name='Фамилия',
     )

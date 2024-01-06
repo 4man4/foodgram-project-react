@@ -26,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters',
     'rest_framework.authtoken',
+    'django_filters',
     'djoser',
     'recipes',
     'users',
@@ -98,7 +98,11 @@ DJOSER = {
         'user_create': 'users.serializers.CreateUserSerializer',
         'user': 'users.serializers.UserSerializer',
         'current_user': 'users.serializers.UserSerializer',
+        'set_password': 'users.serializers.PasswordSerializer',
     },
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.AllowAny'],
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -16,7 +16,6 @@ from .serializers import (
     FavoriteSerializer,
     ShoppingCartSerializer,
 )
-
 from .filters import IngredientFilter, RecipeFilter
 from .models import (
     Recipe,

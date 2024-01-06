@@ -49,7 +49,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Recipe
         fields = (
@@ -88,9 +87,9 @@ class CreateRecipeSerializer(RecipeSerializer):
         return False
 
     def validate_cooking_time(self, value):
-        if value <= const.MIN_COOKING_TIME:
+        if value < const.MIN_COOKING_TIME:
             raise serializers.ValidationError(
-                'Введите число больше 0',
+                'Введите число >= 1',
                 status.HTTP_400_BAD_REQUEST,
             )
         return value

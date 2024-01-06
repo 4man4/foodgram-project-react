@@ -1,17 +1,17 @@
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.hashers import make_password
-from rest_framework import status, viewsets
+# from django.contrib.auth.hashers import make_password
+from rest_framework import status, viewsets, views
 from rest_framework.permissions import (
     IsAuthenticated,
-    AllowAny,
+    # AllowAny,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .serializers import (
-    UserSerializer,
-    CreateUserSerializer,
-    PasswordSerializer,
+    # UserSerializer,
+    # CreateUserSerializer,
+    # PasswordSerializer,
     ShowSubscriptionsSerializer,
     EditSubscriptionsSerializer,
 )
@@ -20,50 +20,50 @@ from .models import User, Follow
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = (AllowAny,)
+    # permission_classes = (AllowAny,)
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return UserSerializer
-        return CreateUserSerializer
+    # def get_serializer_class(self):
+    #     if self.request.method == 'GET':
+    #         return UserSerializer
+    #     return CreateUserSerializer
+    #
+    # def perform_create(self, serializer):
+    #     if 'password' in self.request.data:
+    #         password = make_password(self.request.data['password'])
+    #         serializer.save(password=password)
+    #     else:
+    #         serializer.save()
+    #
+    # def perform_update(self, serializer):
+    #     if 'password' in self.request.data:
+    #         password = make_password(self.request.data['password'])
+    #         serializer.save(password=password)
+    #     else:
+    #         serializer.save()
+    #
+    # @action(detail=False, permission_classes=(IsAuthenticated,))
+    # def me(self, request, *args, **kwargs):
+    #     user = get_object_or_404(User, pk=request.user.id)
+    #     serializer = UserSerializer(user, context={'request': request})
+    #     return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        if 'password' in self.request.data:
-            password = make_password(self.request.data['password'])
-            serializer.save(password=password)
-        else:
-            serializer.save()
-
-    def perform_update(self, serializer):
-        if 'password' in self.request.data:
-            password = make_password(self.request.data['password'])
-            serializer.save(password=password)
-        else:
-            serializer.save()
-
-    @action(detail=False, permission_classes=(IsAuthenticated,))
-    def me(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=request.user.id)
-        serializer = UserSerializer(user, context={'request': request})
-        return Response(serializer.data)
-
-    @action(
-        methods=('post',),
-        detail=False,
-        permission_classes=(IsAuthenticated,),
-    )
-    def set_password(self, request, *args, **kwargs):
-        user = self.request.user
-        serializer = PasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            user.set_password(serializer.validated_data['new_password'])
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    # @action(
+    #     methods=('post',),
+    #     detail=False,
+    #     permission_classes=(IsAuthenticated,),
+    # )
+    # def set_password(self, request, *args, **kwargs):
+    #     user = self.request.user
+    #     serializer = PasswordSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         user.set_password(serializer.validated_data['new_password'])
+    #         user.save()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+    #     else:
+    #         return Response(
+    #             serializer.errors,
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
 
     @action(
         methods=('post', 'delete'),
@@ -90,9 +90,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ShowSubscriptionsSerializer
+class SubscriptionsViewSet(viewsets.ModelViewSet):
+    # serializer_class = ShowSubscriptionsSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'DELETE']:
+            return EditSubscriptionsSerializer
+        return ShowSubscriptionsSerializer
