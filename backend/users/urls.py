@@ -3,15 +3,23 @@ from rest_framework.routers import DefaultRouter
 
 from .views import UserViewSet, SubscriptionsViewSet
 
-router = DefaultRouter()
-router.register('subscriptions', SubscriptionsViewSet, basename='subscriptions')
-router.register('subscribe', SubscriptionsViewSet, basename='subscribe')
-# router.register('set_password', include('djoser.urls.set_password'))
+# router = DefaultRouter()
+# router.register('users/subscriptions/', SubscriptionsViewSet, basename='subscriptions')
+# router.register('users/subscribe/', SubscriptionsViewSet, basename='subscribe')
+# router.register('', include('djoser.urls'))
 # router.register('', UserViewSet)
 
 urlpatterns = [
-    path(r'', include('djoser.urls')),
     # re_path(r'^users/', include('djoser.urls')),
-    re_path(r'^users/', include(router.urls)),
+    # re_path(r'^users/', include(router.urls)),
+    # path(r'', include(router.urls)),
+    path('users/subscriptions/', SubscriptionsViewSet.as_view({
+        'get': 'list',
+    }),),
+    path('users/<int:pk>/subscribe/', SubscriptionsViewSet.as_view({
+        'post': 'create',
+        'delete': 'destroy',
+    }),),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
+    path('', include('djoser.urls')),
 ]

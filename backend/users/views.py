@@ -94,10 +94,25 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
     # serializer_class = ShowSubscriptionsSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        return User.objects.filter(following__user=self.request.user)
-
     def get_serializer_class(self):
         if self.request.method in ['POST', 'DELETE']:
             return EditSubscriptionsSerializer
         return ShowSubscriptionsSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(following__user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        Follow.objects.create(
+            user=self.request.user,
+            author=get_object_or_404(User, id=self.kwargs['pk'])
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_destroy(self, instance):
+        Follow.objects.filter(
+            user=self.request.user,
+            author=get_object_or_404(User, id=self.kwargs['pk'])
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

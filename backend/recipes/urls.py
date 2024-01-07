@@ -16,14 +16,8 @@ router.register(r'ingredients', IngredientsView, basename='ingredients')
 router.register(r'recipes', RecipeView, basename='recipes')
 
 urlpatterns = [
-    path(
-        'recipes/<int:pk>/favorite/',
-        FavoriteView.as_view(),
-    ),
-    path(
-        'recipes/<int:pk>/shopping_cart/',
-        ShoppingCartView.as_view(),
-    ),
+    path('recipes/<int:pk>/favorite/', FavoriteView.as_view(),),
+    path('recipes/<int:pk>/shopping_cart/', ShoppingCartView.as_view(),),
     path(
         'recipes/download_shopping_cart/',
         download_shopping_cart,

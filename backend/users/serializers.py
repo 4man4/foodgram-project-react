@@ -1,6 +1,7 @@
 import re
 
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from recipes.models import Recipe
 from .models import User, Follow
@@ -95,8 +96,9 @@ class ShowSubscriptionsSerializer(UserSerializer):
 class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
     def validate(self, data):
         request = self.context.get('request')
-        user = self.context.get('user')
-        author = self.context.get('author')
+        user = request.user
+        author = get_object_or_404(User, id=self.context['request'].parser_context['kwargs']['pk'])
+        # author = self.context.get('author')
         if (
                 request.method == 'POST'
                 and Follow.objects.filter(user=user, author=author).exists()
@@ -117,4 +119,4 @@ class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
                 ).exists()
         ):
             raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
-        return data
+        return author
