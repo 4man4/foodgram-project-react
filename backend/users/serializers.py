@@ -96,8 +96,10 @@ class ShowSubscriptionsSerializer(UserSerializer):
 class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
     def validate(self, data):
         request = self.context.get('request')
-        user = request.user
-        author = get_object_or_404(User, id=self.context['request'].parser_context['kwargs']['pk'])
+        user = self.initial_data['user']
+        # user = request.user
+        author = self.initial_data['author']
+        # author = get_object_or_404(User, id=self.context['request'].parser_context['kwargs']['pk'])
         # author = self.context.get('author')
         if (
                 request.method == 'POST'
