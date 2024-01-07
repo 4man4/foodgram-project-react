@@ -1,97 +1,18 @@
 from django.shortcuts import get_object_or_404
-# from django.contrib.auth.hashers import make_password
-from rest_framework import status, viewsets, views
+from rest_framework import status, viewsets
 from rest_framework.permissions import (
     IsAuthenticated,
-    # AllowAny,
 )
-from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .serializers import (
-    # UserSerializer,
-    # CreateUserSerializer,
-    # PasswordSerializer,
     ShowSubscriptionsSerializer,
     EditSubscriptionsSerializer,
 )
 from .models import User, Follow
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    # permission_classes = (AllowAny,)
-
-    # def get_serializer_class(self):
-    #     if self.request.method == 'GET':
-    #         return UserSerializer
-    #     return CreateUserSerializer
-    #
-    # def perform_create(self, serializer):
-    #     if 'password' in self.request.data:
-    #         password = make_password(self.request.data['password'])
-    #         serializer.save(password=password)
-    #     else:
-    #         serializer.save()
-    #
-    # def perform_update(self, serializer):
-    #     if 'password' in self.request.data:
-    #         password = make_password(self.request.data['password'])
-    #         serializer.save(password=password)
-    #     else:
-    #         serializer.save()
-    #
-    # @action(detail=False, permission_classes=(IsAuthenticated,))
-    # def me(self, request, *args, **kwargs):
-    #     user = get_object_or_404(User, pk=request.user.id)
-    #     serializer = UserSerializer(user, context={'request': request})
-    #     return Response(serializer.data)
-
-    # @action(
-    #     methods=('post',),
-    #     detail=False,
-    #     permission_classes=(IsAuthenticated,),
-    # )
-    # def set_password(self, request, *args, **kwargs):
-    #     user = self.request.user
-    #     serializer = PasswordSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         user.set_password(serializer.validated_data['new_password'])
-    #         user.save()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    #     else:
-    #         return Response(
-    #             serializer.errors,
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
-
-    @action(
-        methods=('post', 'delete'),
-        detail=True,
-        permission_classes=(IsAuthenticated,),
-    )
-    def subscribe(self, request, pk):
-        user = request.user
-        author = get_object_or_404(User, id=pk)
-        serializer = EditSubscriptionsSerializer(
-            author,
-            data=request.data,
-            context={'request': request, 'user': user, 'author': author},
-        )
-        if (request.method == 'POST'
-                and serializer.is_valid(raise_exception=True)):
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif (request.method == 'DELETE'
-              and serializer.is_valid(raise_exception=True)):
-            queryset = Follow.objects.filter(user=user, author=author)
-            queryset.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class SubscriptionsViewSet(viewsets.ModelViewSet):
-    # serializer_class = ShowSubscriptionsSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
@@ -103,50 +24,30 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
             return EditSubscriptionsSerializer
         return ShowSubscriptionsSerializer
 
-    # def get_serializer_context(self):
-    #     context = super().get_serializer_context()
-    #     context.update({
-    #         'user': self.request.user,
-    #         'author': get_object_or_404(User, pk=self.kwargs['pk']),
-    #     })
+    def do_validation(self, request, **kwargs):
+        user = request.user
+        author = get_object_or_404(User, pk=kwargs['pk'])
+        serializer = self.get_serializer(data={
+            'user': user,
+            'author': author,
+        })
+        serializer.is_valid(raise_exception=True)
+        return {'user': user, 'author': author, 'serializer': serializer}
 
     def create(self, request, *args, **kwargs):
-        user = request.user
-        author = get_object_or_404(User, pk=kwargs['pk'])
-        serializer = self.get_serializer(data={
-            'user': user,
-            'author': author,
-        })
-        serializer.is_valid(raise_exception=True)
-        # self.perform_create(serializer)
+        validated = self.do_validation(request, **kwargs)
         Follow.objects.create(
-            user=user,
-            author=author,
+            user=validated['user'],
+            author=validated['author'],
         )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # def perform_create(self, serializer):
-    #     serializer.is_valid(raise_exception=True)
-    #     Follow.objects.create(
-    #         user=self.request.user,
-    #         author=get_object_or_404(User, id=self.kwargs['pk'])
-    #     )
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(validated['serializer'].data, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
-        user = request.user
-        author = get_object_or_404(User, pk=kwargs['pk'])
-        serializer = self.get_serializer(data={
-            'user': user,
-            'author': author,
-        })
-        serializer.is_valid(raise_exception=True)
+        validated = self.do_validation(request, **kwargs)
         self.perform_destroy(
             Follow.objects.filter(
-                user=user,
-                author=author
+                user=validated['user'],
+                author=validated['author'],
             )
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # def perform_destroy(self, instance):

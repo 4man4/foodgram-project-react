@@ -1,7 +1,6 @@
 import re
 
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 
 from recipes.models import Recipe
 from .models import User, Follow
@@ -97,10 +96,7 @@ class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
     def validate(self, data):
         request = self.context.get('request')
         user = self.initial_data['user']
-        # user = request.user
         author = self.initial_data['author']
-        # author = get_object_or_404(User, id=self.context['request'].parser_context['kwargs']['pk'])
-        # author = self.context.get('author')
         if (
                 request.method == 'POST'
                 and Follow.objects.filter(user=user, author=author).exists()
