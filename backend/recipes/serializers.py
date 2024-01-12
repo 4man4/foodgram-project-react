@@ -22,7 +22,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='ingredient.id',)
+    id = serializers.ReadOnlyField(source='ingredient.id',)
     name = serializers.ReadOnlyField(source='ingredient.name',)
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit',
@@ -40,6 +40,16 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
                 status.HTTP_400_BAD_REQUEST,
             )
         return value
+
+
+class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
+
+    class Meta:
+        model = RecipeIngredients
+        fields = ('id', 'amount')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -71,7 +81,7 @@ class CreateRecipeSerializer(RecipeSerializer):
         many=True,
     )
     author = UserSerializer(read_only=True)
-    ingredients = RecipeIngredientsSerializer(many=True)
+    ingredients = AddIngredientToRecipeSerializer(many=True)
     image = Base64ImageField(max_length=None, use_url=True)
     is_favorited = serializers.SerializerMethodField(
         'get_is_favorited'
@@ -118,7 +128,7 @@ class CreateRecipeSerializer(RecipeSerializer):
             )
         ingredients_list = []
         for ingredient in value:
-            ingredient_id = ingredient['ingredient']['id']
+            ingredient_id = ingredient['id'].id
             if ingredient_id in ingredients_list:
                 raise serializers.ValidationError(
                     f'Ингредиент "{ingredient_id}" повторяется',
