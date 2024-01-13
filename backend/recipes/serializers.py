@@ -59,6 +59,13 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    # is_favorited = serializers.SerializerMethodField(
+    #     'get_is_favorited'
+    # )
+    # is_in_shopping_cart = serializers.SerializerMethodField(
+    #     'get_is_in_shopping_cart'
+    # )
+
     class Meta:
         model = Recipe
         fields = (
@@ -66,13 +73,19 @@ class RecipeSerializer(serializers.ModelSerializer):
             'tags',
             'author',
             'ingredients',
-            'is_favorited',
-            'is_in_shopping_cart',
+            # 'is_favorited',
+            # 'is_in_shopping_cart',
             'name',
             'image',
             'text',
             'cooking_time',
         )
+
+    # def get_is_favorited(self):
+    #     return False
+    #
+    # def get_is_in_shopping_cart(self):
+    #     return False
 
 
 class CreateRecipeSerializer(RecipeSerializer):
@@ -83,18 +96,18 @@ class CreateRecipeSerializer(RecipeSerializer):
     author = UserSerializer(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(many=True)
     image = Base64ImageField(max_length=None, use_url=True)
-    is_favorited = serializers.SerializerMethodField(
-        'get_is_favorited'
-    )
-    is_in_shopping_cart = serializers.SerializerMethodField(
-        'get_is_in_shopping_cart'
-    )
-
-    def get_is_favorited(self):
-        return False
-
-    def get_is_in_shopping_cart(self):
-        return False
+    # is_favorited = serializers.SerializerMethodField(
+    #     'get_is_favorited'
+    # )
+    # is_in_shopping_cart = serializers.SerializerMethodField(
+    #     'get_is_in_shopping_cart'
+    # )
+    #
+    # def get_is_favorited(self):
+    #     return False
+    #
+    # def get_is_in_shopping_cart(self):
+    #     return False
 
     def validate_cooking_time(self, value):
         if value < const.MIN_COOKING_TIME:
@@ -157,8 +170,8 @@ class CreateRecipeSerializer(RecipeSerializer):
             author=self.context.get('request').user,
             **validated_data,
         )
-        recipe.is_favorited = False
-        recipe.is_in_shopping_cart = False
+        # recipe.is_favorited = False
+        # recipe.is_in_shopping_cart = False
         recipe.tags.set(tags)
         self.make_ingredients(recipe, ingredients_obj, ingredients)
         return recipe
@@ -181,16 +194,38 @@ class CreateRecipeSerializer(RecipeSerializer):
 
 
 class ShowRecipeSerializer(RecipeSerializer):
+    class Meta(RecipeSerializer.Meta):
+        fields = RecipeSerializer.Meta.fields + (
+            'is_favorited',
+            'is_in_shopping_cart',
+        )
+
     tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientsSerializer(
         source='recipeingredients',
         many=True,
     )
-    is_favorited = serializers.BooleanField()
-    is_in_shopping_cart = serializers.BooleanField()
+    # is_favorited = serializers.BooleanField()
+    # is_in_shopping_cart = serializers.BooleanField()
     image = Base64ImageField(max_length=None, use_url=True)
     cooking_time = serializers.IntegerField()
+    is_favorited = serializers.SerializerMethodField(
+        'get_is_favorited'
+    )
+    is_in_shopping_cart = serializers.SerializerMethodField(
+        'get_is_in_shopping_cart'
+    )
+
+    def get_is_favorited(self, instance):
+        if hasattr(instance, 'is_favorited'):
+            return instance.is_favorited
+        return False
+
+    def get_is_in_shopping_cart(self, instance):
+        if hasattr(instance, 'is_in_shopping_cart'):
+            return instance.is_in_shopping_cart
+        return False
 
 
 class FavoriteShopCartSerializer(serializers.Serializer):
