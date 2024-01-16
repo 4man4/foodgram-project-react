@@ -77,21 +77,6 @@ class RecipeView(viewsets.ModelViewSet):
             is_in_shopping_cart=Value(False)
         )
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({'request': self.request})
-        if self.get_serializer_class() == CreateRecipeSerializer:
-            ingredients_ids = []
-            for ingredient in self.request.data['ingredients']:
-                if ingredient['id'] not in ingredients_ids:
-                    ingredients_ids.append(ingredient['id'])
-            context.update({
-                'ingredients_obj': Ingredient.objects.filter(
-                    pk__in=ingredients_ids
-                )
-            })
-        return context
-
 
 class FavoriteShopCartView(APIView):
     permission_classes = (IsAuthorOrAdminOrReadOnly,)

@@ -166,12 +166,14 @@ class RecipeTags(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='recipetags',
         verbose_name='Рецепт',
         help_text='Введите id рецепта',
     )
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
+        related_name='recipetags',
         verbose_name='Тег',
         help_text='Введите id тега',
     )
