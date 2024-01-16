@@ -208,59 +208,57 @@ class ShowRecipeSerializer(RecipeSerializer):
         return False
 
 
-class FavoriteShopCartSerializer(serializers.Serializer):
+class UsingRecipesSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         default=serializers.CurrentUserDefault(),
     )
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
 
+    class Meta:
+        fields = ('user', 'recipe')
+        model = None
 
-class FavoriteSerializer(FavoriteShopCartSerializer):
+    error_message_already_exists = ''
+    error_message_not_exists = ''
+
+
+
     def validate(self, data):
         request = self.context.get('request')
-        queryset = (Favorite.objects.filter(
+        queryset = (self.Meta.model.objects.filter(
             user=data['user'],
             recipe=data['recipe']
         ).exists())
         if request.method == 'POST' and queryset:
             raise serializers.ValidationError(
-                {'errors': 'Рецепт уже добавлен в избранное.'}
+                {'errors': self.error_message_already_exists}
             )
         if request.method == 'DELETE' and not queryset:
             raise serializers.ValidationError(
-                {'errors': 'Рецепта нет в избранном.'}
+                {'errors': self.error_message_not_exists}
             )
         return data
 
     def create(self, validated_data):
-        return Favorite.objects.create(**validated_data)
+        return self.Meta.model.objects.create(**validated_data)
 
     def to_representation(self, instance):
         recipe = SpecialRecipeSerializer(instance.recipe)
         return recipe.data
 
 
-class ShoppingCartSerializer(FavoriteShopCartSerializer):
-    def validate(self, data):
-        request = self.context.get('request')
-        queryset = (ShoppingCart.objects.filter(
-            user=data['user'],
-            recipe=data['recipe']
-        ).exists())
-        if request.method == 'POST' and queryset:
-            raise serializers.ValidationError(
-                {'errors': 'Рецепт уже добавлен в корзину покупок.'}
-            )
-        if request.method == 'DELETE' and not queryset:
-            raise serializers.ValidationError(
-                {'errors': 'Рецепта нет в корзине покупок.'}
-            )
-        return data
+class FavoriteSerializer(UsingRecipesSerializer):
+    class Meta(UsingRecipesSerializer.Meta):
+        model = Favorite
 
-    def create(self, validated_data):
-        return ShoppingCart.objects.create(**validated_data)
+    error_message_already_exists = 'Рецепт уже добавлен в избранное.'
+    error_message_not_exists = 'Рецепта нет в избранном.'
 
-    def to_representation(self, instance):
-        recipe = SpecialRecipeSerializer(instance.recipe)
-        return recipe.data
+
+class ShoppingCartSerializer(UsingRecipesSerializer):
+    class Meta(UsingRecipesSerializer.Meta):
+        model = ShoppingCart
+
+    error_message_already_exists = 'Рецепт уже добавлен в корзину покупок.'
+    error_message_not_exists = 'Рецепта нет в корзине покупок.'

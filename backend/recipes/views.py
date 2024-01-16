@@ -78,13 +78,13 @@ class RecipeView(viewsets.ModelViewSet):
         )
 
 
-class FavoriteShopCartView(APIView):
+class UsingRecipesView(APIView):
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
+    serializer_class = None
+    model = None
 
-
-class FavoriteView(FavoriteShopCartView):
     def post(self, request, pk):
-        serializer = FavoriteSerializer(
+        serializer = self.serializer_class(
             data={'user': request.user.pk, 'recipe': pk},
             context={'request': request},
         )
@@ -96,40 +96,25 @@ class FavoriteView(FavoriteShopCartView):
     def delete(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
-        serializer = FavoriteSerializer(
+        serializer = self.serializer_class(
             data={'user': user.pk, 'recipe': pk},
             context={'request': request}
         )
         if serializer.is_valid(raise_exception=True):
-            queryset = Favorite.objects.filter(user=user, recipe=recipe)
+            queryset = self.model.objects.filter(user=user, recipe=recipe)
             queryset.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ShoppingCartView(FavoriteShopCartView):
-    def post(self, request, pk):
-        serializer = ShoppingCartSerializer(
-            data={'user': request.user.pk, 'recipe': pk},
-            context={'request': request},
-        )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class FavoriteView(UsingRecipesView):
+    serializer_class = FavoriteSerializer
+    model = Favorite
 
-    def delete(self, request, pk):
-        user = request.user
-        recipe = get_object_or_404(Recipe, id=pk)
-        serializer = ShoppingCartSerializer(
-            data={'user': user.pk, 'recipe': pk},
-            context={'request': request}
-        )
-        if serializer.is_valid(raise_exception=True):
-            queryset = ShoppingCart.objects.filter(user=user, recipe=recipe)
-            queryset.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ShoppingCartView(UsingRecipesView):
+    serializer_class = ShoppingCartSerializer
+    model = ShoppingCart
 
 
 @api_view(['GET'])
