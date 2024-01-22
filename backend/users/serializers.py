@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return (request
                 and request.user.is_authenticated
-                and request.user.follower.filter(author=obj).exists())
+                and request.user.follower.filter(author=obj.pk).exists())
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -92,11 +92,18 @@ class ShowSubscriptionsSerializer(UserSerializer):
         return obj.recipes.count()
 
 
-class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
+class EditSubscriptionsSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Follow
+        fields = ('user', 'author',)
+
     def validate(self, data):
         request = self.context.get('request')
-        user = self.initial_data['user']
-        author = self.initial_data['author']
+        user = data['user']
+        author = data['author']
         if (
                 request.method == 'POST'
                 and Follow.objects.filter(user=user, author=author).exists()
@@ -117,4 +124,13 @@ class EditSubscriptionsSerializer(ShowSubscriptionsSerializer):
                 ).exists()
         ):
             raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
-        return author
+        return data
+
+    def create(self, validated_data):
+        return Follow.objects.create(
+            user=validated_data['user'],
+            author=validated_data['author']
+        )
+
+    def to_representation(self, instance):
+        return ShowSubscriptionsSerializer(instance.author, context=self.context).data

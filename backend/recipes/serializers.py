@@ -126,7 +126,7 @@ class CreateRecipeSerializer(RecipeSerializer):
         return value
 
     def validate(self, validated_data):
-        request = self.context['request']
+        request = self.context.get('request')
         ingredients_ids = [i['id'] for i in request.data['ingredients']]
         ingredients_obj = Ingredient.objects.filter(pk__in=ingredients_ids)
         validated_data.update({'ingredients_obj': ingredients_obj})
@@ -222,8 +222,6 @@ class UsingRecipesSerializer(serializers.ModelSerializer):
     error_message_already_exists = ''
     error_message_not_exists = ''
 
-
-
     def validate(self, data):
         request = self.context.get('request')
         queryset = (self.Meta.model.objects.filter(
@@ -244,8 +242,7 @@ class UsingRecipesSerializer(serializers.ModelSerializer):
         return self.Meta.model.objects.create(**validated_data)
 
     def to_representation(self, instance):
-        recipe = SpecialRecipeSerializer(instance.recipe)
-        return recipe.data
+        return SpecialRecipeSerializer(instance.recipe).data
 
 
 class FavoriteSerializer(UsingRecipesSerializer):
