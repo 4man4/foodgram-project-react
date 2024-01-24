@@ -133,4 +133,7 @@ class EditSubscriptionsSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        return ShowSubscriptionsSerializer(instance.author, context=self.context).data
+        return ShowSubscriptionsSerializer(
+            instance.author,
+            context=self.context
+        ).data

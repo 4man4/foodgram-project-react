@@ -130,7 +130,6 @@ class CreateRecipeSerializer(RecipeSerializer):
         validated_data.update({'user': request.user})
         return validated_data
 
-
     def make_ingredients(self, recipe, ingredients_obj, ingredients):
         ingredient_list = []
         for ingredient_obj, ingredient in zip(

@@ -18,7 +18,10 @@ class SubscriptionsViewSet(views.APIView):
     def get(self, request):
         subscriptions = User.objects.filter(following__user=self.request.user)
         paginator = CustomPagination()
-        paginated_queryset = paginator.paginate_queryset(subscriptions, request)
+        paginated_queryset = paginator.paginate_queryset(
+            subscriptions,
+            request,
+        )
         serializer = ShowSubscriptionsSerializer(
             paginated_queryset,
             context={'request': request},
