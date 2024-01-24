@@ -59,7 +59,7 @@ class PasswordSerializer(serializers.Serializer):
         fields = '__all__'
 
 
-class SpecialRecipeSerializer(serializers.ModelSerializer):
+class UserRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -82,7 +82,7 @@ class ShowSubscriptionsSerializer(UserSerializer):
         recipes = obj.recipes.all()
         if bool(re.match(r'^\d+$', recipes_limit)):
             recipes = recipes[:int(recipes_limit)]
-        return SpecialRecipeSerializer(
+        return UserRecipeSerializer(
             recipes,
             many=True,
             read_only=True

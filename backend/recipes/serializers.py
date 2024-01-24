@@ -3,13 +3,12 @@ from rest_framework import serializers, status
 
 import foodgram.constants as const
 from users.models import User
-from users.serializers import UserSerializer, SpecialRecipeSerializer
+from users.serializers import UserSerializer, UserRecipeSerializer
 from .models import (
     Favorite,
     Ingredient,
     Recipe,
     RecipeIngredients,
-    RecipeTags,
     ShoppingCart,
     Tag,
 )
@@ -66,8 +65,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'tags',
             'author',
             'ingredients',
-            # 'is_favorited',
-            # 'is_in_shopping_cart',
             'name',
             'image',
             'text',
@@ -242,7 +239,7 @@ class UsingRecipesSerializer(serializers.ModelSerializer):
         return self.Meta.model.objects.create(**validated_data)
 
     def to_representation(self, instance):
-        return SpecialRecipeSerializer(instance.recipe).data
+        return UserRecipeSerializer(instance.recipe).data
 
 
 class FavoriteSerializer(UsingRecipesSerializer):
