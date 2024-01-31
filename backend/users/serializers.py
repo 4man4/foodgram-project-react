@@ -87,7 +87,8 @@ class ShowSubscriptionsSerializer(UserSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
-        if bool(re.match(r'^\d+$', recipes_limit)):
+        if (recipes_limit is not None
+                and bool(re.match(r'^\d+$', recipes_limit))):
             recipes = recipes[:int(recipes_limit)]
         return UserRecipeSerializer(
             recipes,
