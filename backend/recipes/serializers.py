@@ -157,7 +157,10 @@ class CreateRecipeSerializer(RecipeSerializer):
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        return ShowRecipeSerializer(instance).data
+        return ShowRecipeSerializer(
+            instance,
+            context={'request': self.context.get('request')},
+        ).data
 
 
 class ShowRecipeSerializer(RecipeSerializer):
@@ -177,6 +180,13 @@ class ShowRecipeSerializer(RecipeSerializer):
             'is_favorited',
             'is_in_shopping_cart',
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request:
+            data['image'] = request.build_absolute_uri(instance.image.url)
+        return data
 
 
 class UsingRecipesSerializer(serializers.ModelSerializer):
@@ -213,7 +223,10 @@ class UsingRecipesSerializer(serializers.ModelSerializer):
         return self.Meta.model.objects.create(**validated_data)
 
     def to_representation(self, instance):
-        return UserRecipeSerializer(instance.recipe).data
+        return UserRecipeSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')},
+        ).data
 
 
 class FavoriteSerializer(UsingRecipesSerializer):

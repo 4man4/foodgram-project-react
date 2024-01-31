@@ -64,6 +64,13 @@ class UserRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request:
+            data['image'] = request.build_absolute_uri(instance.image.url)
+        return data
+
 
 class ShowSubscriptionsSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField('get_recipes')
@@ -85,7 +92,8 @@ class ShowSubscriptionsSerializer(UserSerializer):
         return UserRecipeSerializer(
             recipes,
             many=True,
-            read_only=True
+            read_only=True,
+            context={'request': request},
         ).data
 
     def get_recipes_count(self, obj):
