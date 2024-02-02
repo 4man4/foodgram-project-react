@@ -40,7 +40,7 @@ class IngredientsView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filter_class = IngredientFilter
+    filterset_class = IngredientFilter
     search_fields = ('name',)
     pagination_class = None
 
@@ -48,7 +48,7 @@ class IngredientsView(viewsets.ReadOnlyModelViewSet):
 class RecipeView(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filter_class = RecipeFilter
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
