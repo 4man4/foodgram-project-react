@@ -2,7 +2,6 @@ import re
 
 from rest_framework import serializers
 
-from recipes.models import Recipe
 from .models import User, Follow
 
 
@@ -59,19 +58,6 @@ class PasswordSerializer(serializers.Serializer):
         fields = '__all__'
 
 
-class UserRecipeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        if request:
-            data['image'] = request.build_absolute_uri(instance.image.url)
-        return data
-
-
 class ShowSubscriptionsSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField('get_recipes')
     recipes_count = serializers.SerializerMethodField('get_recipes_count')
@@ -84,13 +70,15 @@ class ShowSubscriptionsSerializer(UserSerializer):
         read_only_fields = ('email', 'username')
 
     def get_recipes(self, obj):
+        from recipes.serializers import ShortRecipeSerializer
+
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
         if (recipes_limit is not None
                 and bool(re.match(r'^\d+$', recipes_limit))):
             recipes = recipes[:int(recipes_limit)]
-        return UserRecipeSerializer(
+        return ShortRecipeSerializer(
             recipes,
             many=True,
             read_only=True,
@@ -134,12 +122,6 @@ class EditSubscriptionsSerializer(serializers.ModelSerializer):
         ):
             raise serializers.ValidationError({'errors': 'Вы не подписаны.'})
         return data
-
-    def create(self, validated_data):
-        return Follow.objects.create(
-            user=validated_data['user'],
-            author=validated_data['author']
-        )
 
     def to_representation(self, instance):
         return ShowSubscriptionsSerializer(

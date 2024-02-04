@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from .serializers import (
     TagSerializer,
     IngredientSerializer,
-    CreateRecipeSerializer,
+    CreateUpdateRecipeSerializer,
     ShowRecipeSerializer,
     FavoriteSerializer,
     ShoppingCartSerializer,
@@ -52,7 +52,7 @@ class RecipeView(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH']:
-            return CreateRecipeSerializer
+            return CreateUpdateRecipeSerializer
         return ShowRecipeSerializer
 
     def get_queryset(self):

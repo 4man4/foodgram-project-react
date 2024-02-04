@@ -3,7 +3,7 @@ from rest_framework import serializers, status
 
 import foodgram.constants as const
 from users.models import User
-from users.serializers import UserSerializer, UserRecipeSerializer
+from users.serializers import UserSerializer
 from .models import (
     Favorite,
     Ingredient,
@@ -12,6 +12,12 @@ from .models import (
     ShoppingCart,
     Tag,
 )
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -42,10 +48,9 @@ class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
     def validate_amount(self, value):
-        if not value:
+        if value < const.MIN_VALUE_INGREDIENT_AMOUNT:
             raise serializers.ValidationError(
-                'Укажите корректное количество '
-                f'ингредиента "{value}"',
+                'Укажите корректное количество ингредиента',
                 status.HTTP_400_BAD_REQUEST,
             )
         return value
@@ -72,7 +77,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class CreateRecipeSerializer(RecipeSerializer):
+class CreateUpdateRecipeSerializer(RecipeSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
@@ -84,7 +89,8 @@ class CreateRecipeSerializer(RecipeSerializer):
     def validate_cooking_time(self, value):
         if value < const.MIN_COOKING_TIME:
             raise serializers.ValidationError(
-                'Введите число >= 1',
+                ('Введите число большее '
+                    f'или равное {const.MIN_COOKING_TIME}'),
                 status.HTTP_400_BAD_REQUEST,
             )
         return value
@@ -181,13 +187,6 @@ class ShowRecipeSerializer(RecipeSerializer):
             'is_in_shopping_cart',
         )
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        if request:
-            data['image'] = request.build_absolute_uri(instance.image.url)
-        return data
-
 
 class UsingRecipesSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
@@ -223,7 +222,7 @@ class UsingRecipesSerializer(serializers.ModelSerializer):
         return self.Meta.model.objects.create(**validated_data)
 
     def to_representation(self, instance):
-        return UserRecipeSerializer(
+        return ShortRecipeSerializer(
             instance.recipe,
             context={'request': self.context.get('request')},
         ).data

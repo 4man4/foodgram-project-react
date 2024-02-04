@@ -1,10 +1,11 @@
 # Проект «Foodgram»
 
-[![Main Foodgram Workflow](https://github.com/4man4/foodgram_project_react/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/foodgram_project_react/actions/workflows/main.yml)
+[![Main Foodgram Workflow](https://github.com/4man4/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/4man4/foodgram_project_react/actions/workflows/main.yml)
 
 ## Описание
 Кулинарная социальная сеть &#127858;<br>
-[http://4man4.ddns.net](http://4man4.ddns.net)
+[http://4man4.ddns.net](http://4man4.ddns.net)<br>
+Проект также доступен по IP-адресу: [http://158.160.20.128](http://158.160.20.128)
 
 Позволяет публиковать рецепты своих любимых блюд, добавлять в избранное чужие и получать список покупок для их приготовления.
 
